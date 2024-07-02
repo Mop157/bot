@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ui import Button, View
+import requests
 import config
 
 class moderator(commands.Cog):
@@ -58,7 +59,7 @@ class moderator(commands.Cog):
         print(message.content)
 
   @commands.command(name="help")
-  async def help(self, ctx):
+  async def help(self, ctx: commands.Context):
       await ctx.send(
       content=f"""```ini
 список команд | Префикс: {self.prefix}
@@ -67,28 +68,61 @@ class moderator(commands.Cog):
 [{self.prefix}slot] игровый автомат
 [{self.prefix}8ball] вольшебная восьмерка
 [{self.prefix}mafia] мафия в дискорде
+[{self.prefix}Buckshot roulette] русская рулетка)
+[{self.prefix}ведьма] карточная игра ведьма
 
 [{self.prefix}info] информация об боте
 ```""")
       
   @commands.command(name="info")
-  async def info(self, ctx):
+  async def info(self, ctx: commands.Context):     
+      async def help(interaction: discord.Interaction):
+         await interaction.response.send_message("""
+Если у вас появились вопросы по поводу меня, или вы обнаружили баг, заходите на мой [сервер поддержки](https://discord.gg/2exCUfVv8z). Там вы найдете все новости обо мне, а также сможете получить помощь, если мой автор занят и не может ответить сразу.
+""", ephemeral=True)
+
+      async def info(interaction: discord.Interaction):
+         await interaction.response.send_message("""
+# Важная информация для всех пользователей!
+
+**Список игр, которые не прошли бета-тест**:
+
+- Мафия (больше 4 игроков) — оформление игры и код подлежат скорейшему изменению.
+- Ведьма (больше 2 игроков)
+
+Спасибо за понимание! Причина такой ситуации — недостаток бета-тестеров.
+""", ephemeral=True)
+      
+      button_help = Button(emoji="☎️", label="Пуддержка", style=discord.ButtonStyle.green)
+      button_infa = Button(emoji="❗", label="Важно", style=discord.ButtonStyle.red)
+
+      button_help.callback = help
+      button_infa.callback = info
+
+      view = View()
+      view.add_item(button_infa)
+      view.add_item(button_help)
+
       synced = await self.client.tree.sync()
       synceds = len(synced)
       all_command = self.client.commands
       all_commands = len(all_command)
-      await ctx.send(
-f"Привет! Я бот **{self.client.user.name}** и я создан для игр на этом сервере.\n"
-"Мои функции включают игровые команды, чтобы поддерживать развлечения для участников.\n\n"
-"Вот немного информации обо мне:\n"
-"**Автор:** mop157\n"
-f"**Версия:** {config.versia}\n"
-f"**Количество серверов:** {len(self.client.guilds)}\n"
-f"**Количество всех команд:** {all_commands}\n"
-f"**Количество всех слеш команд:** {synceds}\n\n"
-"Спасибо за использование меня в играх! Если у вас есть вопросы или нужна помощь, обратитесь к моему автору."
-      )
+      await ctx.send(f"""
+Привет! Я бот **{self.client.user.name}** и я создан для игр на этом сервере.
+Мои функции включают игровые команды, чтобы поддерживать развлечения для участников.
+Вот немного информации обо мне:
+```ini
+Автор: mop157
+Версия: {config.versia}
+Количество серверов: {len(self.client.guilds)}
+Количество всех игр: {synceds}
+Количество всех команд: {all_commands}
+```
+Спасибо за использование меня в играх! Если у вас есть вопросы или нужна помощь, обратитесь к моему автору.""", view=view)
 
+  # @commands.command(name="info")
+  # async def info(self, ctx: commands.Context):
+       
 
 async def setup(client:commands.Bot) -> None:
   await client.add_cog(moderator(client))

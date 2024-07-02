@@ -10,6 +10,8 @@ import cogs.Button.Button as button
 
 list_rps = {}
 list_mafia = {}
+buskshot = {}
+witch = {}
 
 class fun(commands.Cog):
   def __init__(self, client: commands.Bot):
@@ -24,7 +26,7 @@ class fun(commands.Cog):
   @app_commands.command(name="rps", description="Камень, ножницы, бумага")
   async def game(self, interaction: discord.Interaction):
     if interaction.guild is None:
-        await interaction.response.send_message(tekst.rps_DM)
+        await interaction.response.send_message(tekst.DM)
         return
 
     if config.rps == False:
@@ -290,6 +292,7 @@ class fun(commands.Cog):
 
   @app_commands.command(name="slot", description="Играть в игровые автоматы.")
   async def slots(self, interaction: discord.Interaction):
+    
     if config.slots == False:
         await interaction.response.send_message(tekst.nots)
         return
@@ -334,34 +337,41 @@ class fun(commands.Cog):
 
   @app_commands.command(name="mafia", description="Мафия через Discord Бота")
   async def mafia(self, interaction: discord.Interaction):
+      if interaction.guild is None:
+        await interaction.response.send_message(tekst.DM)
+        return
+      
+      if config.mafia == False:
+        await interaction.response.send_message(tekst.nots)
+        return
+      
       channel_id = interaction.channel.id
 
       async def add_player(interaction: discord.Interaction):
           interaction1 = interaction.message.id
           member = interaction.user.id
           if channel_id in list_mafia:
-              if len(list_mafia[channel_id]['players']) < 4:
+              if len(list_mafia[channel_id]['players']) < 13:
                   for add in list_mafia[channel_id]['players']:
                       if add == member:
                           await interaction.response.send_message(tekst.mafia_error_2, ephemeral=True)
                           return
-                  list_mafia[channel_id]['players'][member] = {"роль": "мирный", "голос": 0}
-                  list_mafia[channel_id]['players'][628686422244589561] = {"роль": "мирный", "голос": 0}
-                  list_mafia[channel_id]['players'][628686422244589562] = {"роль": "мирный", "голос": 0}
+                  list_mafia[channel_id]['players'][member] = {"роль": "мирный", "голос": 0, "гол": 0}
                   await interaction.response.send_message(tekst.mafia_add_player, ephemeral=True)
                   if len(list_mafia[channel_id]['players']) == 4:
-                      if len(list_mafia[channel_id]['players']) == 12:
-                        add_pley_button.disabled = True
                       start_button.disabled = False
+                  if len(list_mafia[channel_id]['players']) == 12:
+                      add_pley_button.disabled = True
               else:
                 await interaction.response.send_message(content=tekst.mafia_error_1, ephemeral=True)
                 return  
           else:
-            list_mafia[channel_id] = {'players': {member: {"роль": "мирный", "голос": 0}}}
+            list_mafia[channel_id] = {'players': {member: {"роль": "мирный", "голос": 0, "гол": 0}}, 'info': {'day': 1, 'док': None, 'мафия': None,  'очки1': 0, 'очки2': 0, 'маньяк': None, 'путана': None, 'дон': None, 'user': 0, 'мафия1': 0}}           
             await interaction.response.send_message(tekst.mafia_start, ephemeral=True)
-          await interaction.followup.edit_message(message_id=interaction1, content=f"{tekst.mafia_game}\nПрисоединились к игре {len(list_mafia[channel_id]['players'])}\n", view=view)
+          await interaction.followup.edit_message(message_id=interaction1, content=f"{tekst.mafia_game}\nПрисоединились к игре {len(list_mafia[channel_id]['players'])}\n.", view=view)
 
       async def game_start(interaction: discord.Interaction):
+          stop_event.set()
           add_pley_button.disabled = True
           start_button.disabled = True
           await interaction.response.edit_message(view=view)
@@ -389,53 +399,185 @@ class fun(commands.Cog):
           for rolls in list_mafia[channel_id]['players']:
               rols.append(rolls)
 
-          rol1 = random.choice(rols)
-          list_mafia[channel_id]['players'][player_1]['роль'] = "мафия"
-          rols.remove(rol1)
+          if len(list_mafia[channel_id]['players']) == 4:
+            list_mafia[channel_id]['info']['user'] += 3
 
-          rol2 = random.choice(rols)
-          list_mafia[channel_id]['players'][player_2]['роль'] = "шериф"
-          rols.remove(rol2)
+            r2 = ["шериф", "доктор"]
+            r_2 = ["мафия", "дон"]
+              
+            rol1 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol1]['роль'] = random.choice(r2)
+            rols.remove(rol1)
 
-          if len(list_mafia[channel_id]['players']) > 4:
-              rol3 = random.choice(rols)
-              list_mafia[channel_id]['players'][rol3]['роль'] = "доктор"
-              rols.remove(rol3)
+            rol2 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol2]['роль'] = random.choice(r_2)
+            rols.remove(rol2)
+
+          elif len(list_mafia[channel_id]['players']) > 4 and len(list_mafia[channel_id]['players']) < 7:
+            list_mafia[channel_id]['info']['user'] += len(list_mafia[channel_id]['players']) - 2
+            
+            r1 = ["доктор", "путана", "шериф"]
+            r2 = ["мафия", "дон", "маньяк"]
+
+            rol1 = random.choice(rols)
+            rol1_1 = random.choice(r1)
+            list_mafia[channel_id]['players'][rol1]['роль'] = rol1_1
+            rols.remove(rol1)
+            r1.remove(rol1_1)
+
+
+            rol2 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol2]['роль'] = random.choice(r1)
+            rols.remove(rol2)
+
+            rol3 = random.choice(rols)
+            rol1_2 = random.choice(r2)
+            list_mafia[channel_id]['players'][rol3]['роль'] = rol1_2
+            rols.remove(rol3)
+            if rol1_2 == "мафия":
+                pass
+            else:
+                r2.remove(rol1_2)
+
+            rol4 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol4]['роль'] = random.choice(r2)
+            rols.remove(rol4)
+          
+          elif len(list_mafia[channel_id]['players']) > 6 and len(list_mafia[channel_id]['players']) < 10:
+            list_mafia[channel_id]['info']['user'] += len(list_mafia[channel_id]['players']) - 3 
+            
+            r2 = ["мафия", "дон", "маньяк"]
+
+            rol0 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol0]['роль'] = "доктор"
+            rols.remove(rol0)
+
+            rol1 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol1]['роль'] = "путана"
+            rols.remove(rol1)
+
+            rol2 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol2]['роль'] = "шериф"
+            rols.remove(rol2)
+
+            rol3 = random.choice(rols)
+            rol1_2 = random.choice(r2)
+            list_mafia[channel_id]['players'][rol3]['роль'] = rol1_2
+            rols.remove(rol3)
+            if rol1_2 == "мафия":
+                pass
+            else:
+                r2.remove(rol1_2)
+
+            rol4 = random.choice(rols)
+            rol1_3 = random.choice(r2)
+            list_mafia[channel_id]['players'][rol4]['роль'] = rol1_3
+            rols.remove(rol4)
+            if rol1_3 == "мафия":
+                pass
+            else:
+                r2.remove(rol1_3)
+
+            rol5 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol5]['роль'] = random.choice(r2)
+            rols.remove(rol5)
+          
+          elif len(list_mafia[channel_id]['players']) > 9:
+            list_mafia[channel_id]['info']['user'] += len(list_mafia[channel_id]['players']) - 4
+
+            rol0 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol0]['роль'] = "доктор"
+            rols.remove(rol0)
+
+            rol1 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol1]['роль'] = "путана"
+            rols.remove(rol1)
+
+            rol2 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol2]['роль'] = "шериф"
+            rols.remove(rol2)
+
+            rol3 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol3]['роль'] = "мафия"
+            rols.remove(rol3)
+
+            rol4 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol4]['роль'] = "мафия"
+            rols.remove(rol4)
+
+            rol5 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol5]['роль'] = "дон"
+            rols.remove(rol5)
+
+            rol6 = random.choice(rols)
+            list_mafia[channel_id]['players'][rol6]['роль'] = "маньяк"
+            rols.remove(rol6)
+
+          rol1 = None # мафия
+          rol10 = None # мафия
+          rol20 = None # мафия
+          rol2 = None # шериф
+          rol3 = None # доктор
+          rol4 = None # путана
+          rol5 = None # маньяк
+          rol6 = None # дон
+
+          for rol in list_mafia[channel_id]['players']:
+              if list_mafia[channel_id]['players'][rol]['роль'] ==  "шериф":
+                  rol2 = rol
+
+              elif list_mafia[channel_id]['players'][rol]['роль'] ==  "доктор":
+                  rol3 = rol
+
+              elif list_mafia[channel_id]['players'][rol]['роль'] ==  "путана":
+                  rol4 = rol
+
+              elif list_mafia[channel_id]['players'][rol]['роль'] ==  "маньяк":
+                  list_mafia[channel_id]['info']['очки2'] += 1
+                  rol5 = rol
+
+              elif list_mafia[channel_id]['players'][rol]['роль'] ==  "дон":
+                  list_mafia[channel_id]['info']['очки1'] += 1
+                  rol6 = rol
+
+              elif list_mafia[channel_id]['players'][rol]['роль'] ==  "мафия":
+                  if rol1 is None:
+                      rol1 = rol
+                      list_mafia[channel_id]['info']['очки1'] += 1
+                  else:
+                      if rol10 is None:
+                          rol10 = rol
+                          list_mafia[channel_id]['info']['очки1'] += 1
+                      else:
+                          if rol20 is None:
+                            rol20 = rol
+                            list_mafia[channel_id]['info']['очки1'] += 1
     
           if not existing_channel:
             channe = await guild.create_text_channel("mafia", overwrites=overwrites)
             channel_mafia = channe.id
             for x in list_mafia[channel_id]['players']:
-                if x == 628686422244589561 or x == 628686422244589562:
-                    continue
                 players = guild.get_member(x)
                 await players.send(content=f"поздравляю вы {list_mafia[channel_id]['players'][x]['роль']}\nникому не говорите кто вы до окончания игры\nпожалуста перейдите в канал <#{channel_mafia}>")
                 await channe.set_permissions(players, read_messages=True, send_messages=True)
           else:
                 await interaction.followup.send(":x: | error channel!")
+                del list_mafia[channel_id]
                 return
           
-          await interaction.followup.send(f"{player_1} = {list_mafia[channel_id]['players'][player_1]['роль']},\n{player_2} = {list_mafia[channel_id]['players'][player_2]['роль']},\n{player_3} = {list_mafia[channel_id]['players'][player_3]['роль']},\n{player_4} = {list_mafia[channel_id]['players'][player_4]['роль']}")
+          await interaction.followup.send(f"""
+игра началась
+""")
         
           await channe.send(content="в этом канале будет проводиться игра, пожалуйста администрация не отвлекайте участников от игры и следите за игрой")
-          await asyncio.sleep(30)
+          await asyncio.sleep(10)
 
-          day = 1
-          while True:
+          async def game_play():
+              await channe.send(content=f" \nдень {list_mafia[channel_id]['info']['day']}")
               
-              maf = None
-              wef = True
-              dok = None
-              do = None
-              deb = None
-              await channe.send(content=f" \nдень {day}")
               for a in list_mafia[channel_id]['players']:
-                if a == 628686422244589561 or a == 628686422244589562:
-                    continue
                 for s in list_mafia[channel_id]['players']:
-                    if s == 628686422244589561 or s == 628686422244589562:
-                        continue
-                    elif a == s:
+                    if a == s:
                         continue
                     ss = guild.get_member(s)
                     await channe.set_permissions(ss, send_messages=False, read_messages=True)
@@ -444,8 +586,6 @@ class fun(commands.Cog):
                 await channe.send(content=f" \nучастник <@{a}> ваша речь")
                 await asyncio.sleep(20)
               for a in list_mafia[channel_id]['players']:
-                if a == 628686422244589561 or a == 628686422244589562:
-                    continue
                 aa = guild.get_member(a)
                 await channe.set_permissions(ss, send_messages=True, read_messages=True)
               await channe.send(content=" \nу вас 2 менуты для обсуждения")
@@ -453,14 +593,10 @@ class fun(commands.Cog):
               await channe.send(content=" \nосталась 1 менута")
               await asyncio.sleep(60)
               await channe.send(content=" \nвремя вышло, голосуем кто-то выйдет сегодня или нет")
-              await asyncio.sleep(5)
+              await asyncio.sleep(2)
               for z in list_mafia[channel_id]['players']:
-                if z == 628686422244589561 or z == 628686422244589562:
-                    continue
                 for c in list_mafia[channel_id]['players']:
-                    if c == 628686422244589561 or c == 628686422244589562:
-                        continue
-                    elif z == c:
+                    if z == c:
                         continue
                     cc = guild.get_member(c)
                     await channe.set_permissions(cc, send_messages=False, read_messages=True)
@@ -485,137 +621,484 @@ class fun(commands.Cog):
               us = None
               point = 0
               for b in list_mafia[channel_id]['players']:
-                if b == 628686422244589561 or b == 628686422244589562:
-                    continue
                 if list_mafia[channel_id]['players'][b]['голос'] > point:
                     point = list_mafia[channel_id]['players'][b]['голос']
                     us = b
+                list_mafia[channel_id]['players'][b]['голос'] = 0
 
               if point == 1 or point == 0:
                   pass
               else:
-                  uss = guild.get_member(us)
-                  await channe.set_permissions(uss, send_messages=False, read_messages=False)
-                  await channe.send(f"{list_mafia[channel_id]['players'][us]['роль']} был исключен из игры по количеству голосов: {point}")
-                  del list_mafia[channel_id]['players'][us]
+                  if list_mafia[channel_id]['info']['путана'] is None:
+                    uss = guild.get_member(us)
+                    await channe.set_permissions(uss, send_messages=False, read_messages=False)
+                    await channe.send(f"{list_mafia[channel_id]['players'][us]['роль']} был исключен из игры по количеству голосов: {point}")
+                    
+                    if list_mafia[channel_id]['players'][us]['роль'] == "маньяк":
+                        list_mafia[channel_id]['info']['очки2'] -= 1
+
+                    elif list_mafia[channel_id]['players'][us]['роль'] == "мафия":
+                        list_mafia[channel_id]['info']['очки1'] -= 1
+
+                    elif list_mafia[channel_id]['players'][us]['роль'] == "дон":
+                        list_mafia[channel_id]['info']['очки1'] -= 1
+
+                    else:
+                        list_mafia[channel_id]['info']['user'] -= 1
+
+                    del list_mafia[channel_id]['players'][us]
+                  else:
+                    usss = guild.get_member_named(list_mafia[channel_id]['info']['путана'])
+                    if us == usss.id:
+                        await channe.send(f"у участника {us} есть алибы")
+                        list_mafia[channel_id]['info']['путана'] = None
+                    else:
+                        uss = guild.get_member(us)
+                        await channe.set_permissions(uss, send_messages=False, read_messages=False)
+                        await channe.send(f"{list_mafia[channel_id]['players'][us]['роль']} был исключен из игры по количеству голосов: {point}")
+                        
+                        if list_mafia[channel_id]['players'][us]['роль'] == "маньяк":
+                            list_mafia[channel_id]['info']['очки2'] -= 1
+
+                        elif list_mafia[channel_id]['players'][us]['роль'] == "мафия":
+                            list_mafia[channel_id]['info']['очки1'] -= 1
+
+                        elif list_mafia[channel_id]['players'][us]['роль'] == "дон":
+                            list_mafia[channel_id]['info']['очки1'] -= 1
+
+                        else:
+                            list_mafia[channel_id]['info']['user'] -= 1
+                        
+                        del list_mafia[channel_id]['players'][us]
+              
+              if list_mafia[channel_id]['info']['очки1'] == 0 and list_mafia[channel_id]['info']['очки2'] == 0:
+                await channe.send("мирных победа!")
+                del list_mafia[channel_id]
+                await channe.delete()
+                return
+                
+              if list_mafia[channel_id]['info']['user'] <= list_mafia[channel_id]['info']['очки2']:
+                await channe.send("маньяка победа!")
+                del list_mafia[channel_id]
+                await channe.delete()
+                return
+                
+              if list_mafia[channel_id]['info']['user'] <= list_mafia[channel_id]['info']['очки1']:
+                await channe.send("мафии победа!")
+                del list_mafia[channel_id]
+                await channe.delete()
+                return
 
               await asyncio.sleep(5)
               await channe.send("ночь наступает")
 
-              for n in list_mafia[channel_id]['players']:
-                  if list_mafia[channel_id]['players'][n]['роль'] == "шериф":
-                      await channe.send("шериф просипаеться")
+              async def weruf():
+                await channe.send("шериф просипаеться")
 
-                      async def menu_callback1(interaction: discord.Interaction):
-                        if wef == True:
-                            selected_option = interaction.data['values'][0]
-                            we = guild.get_member_named(interaction.data['values'][0])
-                            await interaction.response.edit_message(content=f"игрок: {selected_option}, являеться {list_mafia[channel_id]['players'][we.id]['роль']}", view=None)
-                        else:
-                            await interaction.response.send_message(f"вы уже проверите игрока этой ночю", ephemeral=True)
+                async def menu_callback(interaction: discord.Interaction):
+                    stop_event.set()
+                    selected_option = interaction.data['values'][0]
+                    we = guild.get_member_named(interaction.data['values'][0])
+                    if 'мафия' == list_mafia[channel_id]['players'][we.id]['роль'] or 'дон' == list_mafia[channel_id]['players'][we.id]['роль']:
+                        await interaction.response.edit_message(content=f"игрок: {selected_option}, являеться {list_mafia[channel_id]['players'][we.id]['роль']}", view=None)
+                    else:
+                        await interaction.response.edit_message(content=f"игрок: {selected_option}, являеться мирным игроком", view=None)
+                    await doktor()
                       
-                      options1 = []
+                options = []
 
-                      for opt1 in list_mafia[channel_id]['players']:
-                          if opt1 == 628686422244589561 or opt1 == 628686422244589562:
-                            continue
-                          opts1 = guild.get_member(opt1)
-                          options1.append(discord.SelectOption(label=f"{opts1}", value=f"{opts1}"))
+                for opt in list_mafia[channel_id]['players']:
+                  opts = guild.get_member(opt)
+                  options.append(discord.SelectOption(label=f"{opts}"))
 
-                      select = discord.ui.Select(
+                select = discord.ui.Select(
                             placeholder="выберите игрока",
                             min_values=1,
                             max_values=1,
-                            options=options1
+                            options=options
                         )
-                      select.callback = menu_callback1
+                select.callback = menu_callback
 
-                      viewq = discord.ui.View()
-                      viewq.add_item(select)
+                view = discord.ui.View(timeout=25)
+                view.add_item(select)
+                stop_event = asyncio.Event()
 
-                      ol2 = guild.get_member(rol2)
-                      await ol2.send("выберите игрока для проверки", view=viewq)
+                async def timeout_callback():
+                    try:
+                        await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+                    except asyncio.TimeoutError:
+                        await doktor()
+                self.client.loop.create_task(timeout_callback()) 
 
-                  elif list_mafia[channel_id]['players'][n]['роль'] == "доктор" and len(list_mafia[channel_id]['players']) > 4:
-                      
-                      await asyncio.sleep(5)
-                      await channe.send("доктор просипаеться")
+                ol2 = guild.get_member(rol2)
+                await ol2.send("выберите игрока для проверки", view=view)
 
-                      async def menu_callback2(interaction: discord.Interaction):
-                        if dok is None:
-                            do = interaction.data['values'][0]
-                            await interaction.response.edit_message(content=f"вы выбрали {do}", view=None)
+              async def doktor():
+                if rol3 is None:
+                    await pytana()
+                else:
+                    if rol3 in list_mafia[channel_id]['players']:
+                        pass
+                    else:
+                        await pytana()
+
+                    await channe.send("доктор просипаеться")
+
+                    async def menu_callback(interaction: discord.Interaction):
+                        stop_event.set()
+                        list_mafia[channel_id]['info']['док'] = interaction.data['values'][0]
+                        await interaction.response.edit_message(content=f"вы выбрали {list_mafia[channel_id]['info']['док']}", view=None)
+                        await pytana()
+                            
+                        
+                    options = []
+
+                    for opt in list_mafia[channel_id]['players']:
+                        if list_mafia[channel_id]['info']['док'] is None:
+                            pass
                         else:
-                            await interaction.response.send_message(f"вы уже сделали свой выбор", ephemeral=True)
-                      
-                      options2 = []
+                            dok = guild.get_member_named(list_mafia[channel_id]['info']['док'])
+                            if opt == dok.id:
+                                continue
+                        opts = guild.get_member(opt)
+                        options.append(discord.SelectOption(label=f"{opts}"))
 
-                      for opt2 in list_mafia[channel_id]['players']:
-                          if opt2 == 628686422244589561 or opt2 == 628686422244589562:
-                            continue
-                          opts2 = guild.get_member(opt2)
-                          options2.append(discord.SelectOption(label=f"{opts2}"))
+                    select = discord.ui.Select(
+                                placeholder="выберите игрока",
+                                min_values=1,
+                                max_values=1,
+                                options=options
+                            )
+                    select.callback = menu_callback
+                        
+                    view = discord.ui.View(timeout=20)
+                    view.add_item(select)
+                    stop_event = asyncio.Event()
 
-                      select = discord.ui.Select(
-                            placeholder="выберите игрока",
-                            min_values=1,
-                            max_values=1,
-                            options=options2
-                        )
-                      select.callback = menu_callback2
-                      
-                      viewqq = discord.ui.View()
-                      viewqq.add_item(select)
+                    async def timeout_callback():
+                        try:
+                            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+                        except asyncio.TimeoutError:
+                            list_mafia[channel_id]['info']['док'] = None
+                            await pytana()
+                    self.client.loop.create_task(timeout_callback()) 
 
-                      ol3 = guild.get_member(rol3)
-                      await ol3.send("выберите игрока для леченя", view=viewqq)
-                      
-                  elif list_mafia[channel_id]['players'][n]['роль'] == "мафия":
-                      
-                      await asyncio.sleep(10)
-                      await channe.send("мафия просипаеться")
+                    ol3 = guild.get_member(rol3)
+                    await ol3.send("выберите игрока для леченя", view=view)
+                        
+              async def pytana():
+                if rol4 is None:
+                    await manak()
+                else:
+                    if rol4 in list_mafia[channel_id]['players']:
+                        pass
+                    else:
+                        await manak()
 
-                      async def menu_callback3(interaction: discord.Interaction):
-                        if maf is None:
-                            ma = interaction.data['values'][0]
-                            if do == ma:
-                                pass
-                            else:
-                                deb = guild.get_member_named(interaction.data['values'][0])
-                                del list_mafia[channel_id]['players'][deb.id]
-                                await channe.set_permissions(deb, send_messages=False, read_messages=False)
-                                await interaction.response.edit_message(content=f"вы отправились ночю к участнику {ma}", view=None)
+                    await channe.send("путана просипаеться")
+
+                    async def menu_callback(interaction: discord.Interaction):
+                        stop_event.set()
+                        list_mafia[channel_id]['info']['путана'] = interaction.data['values'][0]
+                        await interaction.response.edit_message(content=f"вы выбрали {list_mafia[channel_id]['info']['путана']}", view=None)
+                        await manak()
+                            
+                        
+                    options = []
+
+                    for opt in list_mafia[channel_id]['players']:
+                        if list_mafia[channel_id]['info']['путана'] is None:
+                            pass
                         else:
-                            await interaction.response.send_message(f"вы сегодня уже отправлялись к участнику", ephemeral=True)
-                      
-                      options3 = []
+                            dok = guild.get_member_named(list_mafia[channel_id]['info']['путана'])
+                            if opt == dok.id:
+                                continue
+                        opts = guild.get_member(opt)
+                        options.append(discord.SelectOption(label=f"{opts}"))
 
-                      for opt3 in list_mafia[channel_id]['players']:
-                          if opt3 == 628686422244589561 or opt3 == 628686422244589562:
-                            continue
-                          opts3 = guild.get_member(opt3)
-                          options3.append(discord.SelectOption(label=f"{opts3}"))
+                    select = discord.ui.Select(
+                                placeholder="выберите игрока",
+                                min_values=1,
+                                max_values=1,
+                                options=options
+                            )
+                    select.callback = menu_callback
+                        
+                    view = discord.ui.View(timeout=20)
+                    view.add_item(select)
+                    stop_event = asyncio.Event()
 
-                      select = discord.ui.Select(
-                            placeholder="выберите игрока",
-                            min_values=1,
-                            max_values=1,
-                            options=options3
-                        )
-                      select.callback = menu_callback3
-                      
-                      viewqqq = discord.ui.View()
-                      viewqqq.add_item(select)
+                    async def timeout_callback():
+                        try:
+                            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+                        except asyncio.TimeoutError:
+                            list_mafia[channel_id]['info']['путана'] = None
+                            await manak()
+                    self.client.loop.create_task(timeout_callback()) 
 
-                      ol1 = guild.get_member(rol1)
-                      await ol1.send("выберите игрока", view=viewqqq)
+                    ol4 = guild.get_member(rol4)
+                    await ol4.send("выберите игрока для ночьи", view=view)
+              
+              async def manak():
+                if rol5 is None:
+                    await don()
+                else:
+                    if rol5 in list_mafia[channel_id]['players']:
+                        pass
+                    else:
+                        await don()
 
-              await channe.send("город просыпаеться")
-              if deb is None:
-                  pass
+                    await channe.send("маньяк просипаеться")
+
+                    async def menu_callback(interaction: discord.Interaction):
+                        stop_event.set()
+                        ma = interaction.data['values'][0]
+                        if list_mafia[channel_id]['info']['док'] == ma or list_mafia[channel_id]['info']['путана'] == ma:
+                            pass
+                        else:
+                            list_mafia[channel_id]['info']['маньяк'] = interaction.data['values'][0]
+                        await interaction.response.edit_message(content=f"вы отправились ночю к участнику {ma}", view=None)
+                        await don()
+                        
+                    options = []
+                    
+
+                    for opt in list_mafia[channel_id]['players']:
+                        opts = guild.get_member(opt)
+                        options.append(discord.SelectOption(label=f"{opts}"))
+
+                    select = discord.ui.Select(
+                                placeholder="выберите игрока",
+                                min_values=1,
+                                max_values=1,
+                                options=options
+                            )
+                    select.callback = menu_callback
+                        
+                    view = discord.ui.View(timeout=20)
+                    view.add_item(select)
+                    stop_event = asyncio.Event()
+
+                    async def timeout_callback():
+                        try:
+                            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+                        except asyncio.TimeoutError:
+                            await don()
+                    self.client.loop.create_task(timeout_callback()) 
+
+                    ol5 = guild.get_member(rol5)
+                    await ol5.send("выберите игрока", view=view)
+                
+              async def don():
+                if rol6 is None:
+                    await mafia()
+                else:
+                    if rol6 in list_mafia[channel_id]['players']:
+                        pass
+                    else:
+                        await mafia()
+
+                    await channe.send("дон просипаеться")
+
+                    async def menu_callback(interaction: discord.Interaction):
+                        stop_event.set()
+                        selected_option = interaction.data['values'][0]
+                        do = guild.get_member_named(interaction.data['values'][0])
+                        if 'шериф' == list_mafia[channel_id]['players'][do.id]['роль']:
+                            await interaction.response.edit_message(content=f"игрок: {selected_option}, являеться {list_mafia[channel_id]['players'][do.id]['роль']}", view=None)
+                        else:
+                            await interaction.response.edit_message(content=f"игрок: {selected_option}, не шериф", view=None)
+                        await mafia()
+                        
+                    options = []
+
+                    for opt in list_mafia[channel_id]['players']:
+                        opts = guild.get_member(opt)
+                        options.append(discord.SelectOption(label=f"{opts}"))
+
+                    select = discord.ui.Select(
+                                placeholder="выберите игрока",
+                                min_values=1,
+                                max_values=1,
+                                options=options
+                            )
+                    select.callback = menu_callback
+                        
+                    view = discord.ui.View(timeout=20)
+                    view.add_item(select)
+                    stop_event = asyncio.Event()
+
+                    async def timeout_callback():
+                        try:
+                            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+                        except asyncio.TimeoutError:
+                            await mafia()
+                    self.client.loop.create_task(timeout_callback()) 
+
+                    ol6 = guild.get_member(rol6)
+                    await ol6.send("выберите игрока", view=view)
+              
+              async def mafia():
+                if rol1 is None and rol6 is None:
+                    await noc()
+                else:
+                    if rol1 in list_mafia[channel_id]['players'] or rol10 in list_mafia[channel_id]['players'] or rol20 in list_mafia[channel_id]['players'] or rol6 in list_mafia[channel_id]['players']:
+                        pass
+                    else:
+                        await noc()
+
+                    await channe.send("мафия просипаеться")
+
+                    async def menu_callback(interaction: discord.Interaction):
+                        stop_event.set()
+                        ma = guild.get_member_named(interaction.data['values'][0])
+                        list_mafia[channel_id]['players'][ma.id]['гол'] += 1
+                        list_mafia[channel_id]['info']['мафия1'] += 1
+                        await interaction.response.edit_message(content=f"вы отправились ночю к участнику {ma}", view=None)
+                        if list_mafia[channel_id]['info']['очки1'] == list_mafia[channel_id]['info']['мафия1']:
+                            list_mafia[channel_id]['info']['мафия1'] = 0
+                            await noc()
+                        
+                    options = []
+
+                    for opt in list_mafia[channel_id]['players']:
+                        opts = guild.get_member(opt)
+                        options.append(discord.SelectOption(label=f"{opts}"))
+
+                    select = discord.ui.Select(
+                                placeholder="выберите игрока",
+                                min_values=1,
+                                max_values=1,
+                                options=options
+                            )
+                    select.callback = menu_callback
+                        
+                    view = discord.ui.View(timeout=20)
+                    view.add_item(select)
+                    stop_event = asyncio.Event()
+
+                    async def timeout_callback():
+                        try:
+                            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+                        except asyncio.TimeoutError:
+                            stop_event.set()
+                            await noc()
+                    self.client.loop.create_task(timeout_callback()) 
+
+                    for l in list_mafia[channel_id]['players']:
+                        if list_mafia[channel_id]['players'][l]['роль'] == 'мафия' or list_mafia[channel_id]['players'][l]['роль'] == 'дон':
+                            ol1 = guild.get_member(l)
+                            await ol1.send("выберите игрока", view=view)
+
+              if rol2 is None:
+                await doktor()
               else:
-                  await channe.send(f"ночю был убит игрок {deb}:{list_mafia[channel_id]['players'][deb.id]['роль']}")
-              day += 1
+                if rol2 in list_mafia[channel_id]['players']:
+                    await weruf()
+                else:
+                    await doktor()
+
+              async def noc():
+                await channe.send("город просыпаеться")
+
+                us = None
+                point = 0
+                for b in list_mafia[channel_id]['players']:
+                    if list_mafia[channel_id]['players'][b]['гол'] > point:
+                        point = list_mafia[channel_id]['players'][b]['гол']
+                        us = b
+                    list_mafia[channel_id]['players'][b]['гол'] = 0
+
+                uss = guild.get_member(us)
+                try:
+                    kk = guild.get_member_named(list_mafia[channel_id]['info']['док'])
+                except:
+                    kk = None
+                try:
+                    kkk = guild.get_member_named(list_mafia[channel_id]['info']['путана'])
+                except:
+                    kkk = None
+                
+                if point == 0:
+                    list_mafia[channel_id]['info']['мафия'] = None
+                else:
+                    print(kk, kkk, uss)
+                    if kk == uss or kkk == uss:
+                        list_mafia[channel_id]['info']['мафия'] = None
+                    else:
+                        list_mafia[channel_id]['info']['мафия'] = uss.id
+
+
+                if list_mafia[channel_id]['info']['мафия'] is None and list_mafia[channel_id]['info']['маньяк'] is None:
+                    await channe.send(f"ничю никто не умер")
+
+                if list_mafia[channel_id]['info']['мафия'] is None:
+                    pass
+                else:
+                    print(list_mafia[channel_id]['info']['мафия'])
+                    deb = guild.get_member(list_mafia[channel_id]['info']['мафия'])
+                    await channe.send(f"ночю был убит игрок {deb}:{list_mafia[channel_id]['players'][deb.id]['роль']}")
+                    await channe.set_permissions(deb, send_messages=False, read_messages=False)
+                    
+                    if list_mafia[channel_id]['players'][deb.id]['роль'] == "маньяк":
+                        list_mafia[channel_id]['info']['очки2'] -= 1
+
+                    elif list_mafia[channel_id]['players'][deb.id]['роль'] == "мафия":
+                        list_mafia[channel_id]['info']['очки1'] -= 1
+
+                    elif list_mafia[channel_id]['players'][deb.id]['роль'] == "дон":
+                        list_mafia[channel_id]['info']['очки1'] -= 1
+
+                    else:
+                        list_mafia[channel_id]['info']['user'] -= 1
+
+                    del list_mafia[channel_id]['players'][deb.id]
+
+                if list_mafia[channel_id]['info']['маньяк'] is None:
+                    pass
+                else:
+                    deb = guild.get_member_named(list_mafia[channel_id]['info']['маньяк'])
+                    await channe.send(f"ночю был убит игрок {deb}:{list_mafia[channel_id]['players'][deb.id]['роль']}")
+                    await channe.set_permissions(deb, send_messages=False, read_messages=False)
+                    
+                    if list_mafia[channel_id]['players'][deb.id]['роль'] == "маньяк":
+                        list_mafia[channel_id]['info']['очки2'] -= 1
+
+                    elif list_mafia[channel_id]['players'][deb.id]['роль'] == "мафия":
+                        list_mafia[channel_id]['info']['очки1'] -= 1
+
+                    elif list_mafia[channel_id]['players'][deb.id]['роль'] == "дон":
+                        list_mafia[channel_id]['info']['очки1'] -= 1
+
+                    else:
+                        list_mafia[channel_id]['info']['user'] -= 1
+                    
+                    del list_mafia[channel_id]['players'][deb.id]
+
+                list_mafia[channel_id]['info']['day'] += 1
+                list_mafia[channel_id]['info']['мафия'] = None
+                list_mafia[channel_id]['info']['маньяк'] = None
+
+                if list_mafia[channel_id]['info']['очки1'] == 0 and list_mafia[channel_id]['info']['очки2'] == 0:
+                    await channe.send("мирных победа!")
+                    del list_mafia[channel_id]
+                    await channe.delete()
+                    return
+                
+                if list_mafia[channel_id]['info']['user'] <= list_mafia[channel_id]['info']['очки2']:
+                    await channe.send("маньяка победа!")
+                    del list_mafia[channel_id]
+                    await channe.delete()
+                    return
+                
+                if list_mafia[channel_id]['info']['user'] <= list_mafia[channel_id]['info']['очки1']:
+                    await channe.send("мафии победа!")
+                    del list_mafia[channel_id]
+                    await channe.delete()
+                    return
+                
+                await game_play()
+          await game_play()
               
           
       
@@ -630,15 +1113,922 @@ class fun(commands.Cog):
       add_pley_button.callback = add_player
       button_info.callback = info
 
-      view = View()
+      view = View(timeout=180)
       view.add_item(start_button)
       view.add_item(add_pley_button)
       view.add_item(button_info)
+      stop_event = asyncio.Event()
+
+      async def timeout_callback():
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+        except asyncio.TimeoutError:
+            try:
+                del list_mafia[channel_id]
+            except:
+                pass
+            
+      self.client.loop.create_task(timeout_callback()) 
 
       start_button.disabled = True
       await interaction.response.send_message(tekst.mafia_game, view=view)
 
 #######################################################
+
+  @app_commands.command(name="buckshot_roulette", description="Buckshot roulette")
+  async def Buckshot_roulette(self, interaction: discord.Interaction):
+    if interaction.guild is None:
+        await interaction.response.send_message(tekst.DM)
+        return
+    if config.Buckshot_roulette == False:
+        await interaction.response.send_message(tekst.nots)
+        return
+    channe_id = interaction.channel_id
+
+    def cartridg(coin):
+        cartridge = ["🔴", "🔵"]
+        
+        for _ in range(0, coin):
+            buskshot[channe_id]['info']['cartridge'] += random.choice(cartridge)
+        
+        def are_all_cartridges_same(cartridge_list):
+            return all(item == cartridge_list[0] for item in cartridge_list)
+
+        cartridges = buskshot[channe_id]['info']['cartridge']
+
+        if are_all_cartridges_same(cartridges):
+            if cartridges[0] == "🔴":
+                cartridges.remove("🔴")
+                cartridges.append("🔵")
+
+            elif cartridges[0] == "🔵":
+                cartridges.remove("🔵")
+                cartridges.append("🔴")
+
+    async def game_start(interaction: discord.Interaction):
+        stop_event.set()
+        
+        player_1 = None
+        player_2 = None
+        for players in buskshot[channe_id]['players']:
+            if player_1 is None:
+                player_1 = players
+            else:
+                player_2 = players
+
+        if buskshot[channe_id]['game'] == 3:
+            buskshot[channe_id]['players'][player_1]['Мхп'] = 6
+            buskshot[channe_id]['players'][player_1]['хп'] = 6
+            buskshot[channe_id]['players'][player_2]['Мхп'] = 6
+            buskshot[channe_id]['players'][player_2]['хп'] = 6
+            buskshot[channe_id]['lyt'] = 3
+            buskshot[channe_id]['game'] = 7
+
+        elif buskshot[channe_id]['game'] == 2:
+            buskshot[channe_id]['players'][player_1]['Мхп'] = 4
+            buskshot[channe_id]['players'][player_1]['хп'] = 4
+            buskshot[channe_id]['players'][player_2]['Мхп'] = 4
+            buskshot[channe_id]['players'][player_2]['хп'] = 4
+            buskshot[channe_id]['lyt'] = 2
+            buskshot[channe_id]['game'] = 5
+
+        elif buskshot[channe_id]['game'] == 1:
+            buskshot[channe_id]['players'][player_1]['Мхп'] = 2
+            buskshot[channe_id]['players'][player_1]['хп'] = 2
+            buskshot[channe_id]['players'][player_2]['Мхп'] = 2
+            buskshot[channe_id]['players'][player_2]['хп'] = 2
+            buskshot[channe_id]['lyt'] = 1
+            buskshot[channe_id]['game'] = 3
+
+        cartridg(buskshot[channe_id]['game'])
+        await interaction.response.edit_message(content=f"Игра началась!\nЗапомните патроны:\n{buskshot[channe_id]['info']['cartridge']}", view=None)
+        await asyncio.sleep(3)
+        await interaction.delete_original_response()
+        
+        list_lyt = ["лупа", "нож", "енергетик", "наручники", "сыгарета", "магазин", "таблетки", "инвертор"]
+
+        for lyts in range(0, buskshot[channe_id]['lyt']):
+            x = random.choice(list_lyt)
+            if x in buskshot[channe_id]['players'][player_1]['item']:
+                buskshot[channe_id]['players'][player_1][x] += 1
+            else:
+                buskshot[channe_id]['players'][player_1]['item'].append(x)
+                buskshot[channe_id]['players'][player_1][x] += 1
+        
+        for lyts in range(0, buskshot[channe_id]['lyt']):
+            x = random.choice(list_lyt)
+            if x in buskshot[channe_id]['players'][player_2]['item']:
+                buskshot[channe_id]['players'][player_2][x] += 1
+            else:
+                buskshot[channe_id]['players'][player_2]['item'].append(x)
+                buskshot[channe_id]['players'][player_2][x] += 1
+
+        async def game(player_1, player_2):
+            buskshot[channe_id]['info']['x2'] = False
+            if buskshot[channe_id]['info']['player'] is None:
+                buskshot[channe_id]['info']['player'] = player_1
+
+            if buskshot[channe_id]['players'][player_1]['хп'] == 0:
+                await interaction.followup.send(f"игра окончена <@{player_2}> победил")
+                del buskshot[channe_id]
+                return
+
+            elif buskshot[channe_id]['players'][player_2]['хп'] == 0:
+                await interaction.followup.send(f"игра окончена <@{player_1}> победил")
+                del buskshot[channe_id]
+                return
+
+            if buskshot[channe_id]['info']['cartridge'] == []:
+                if buskshot[channe_id]['game'] == 3:
+                    cartridg(random.randint(2, 4))
+
+                elif buskshot[channe_id]['game'] == 5:
+                    cartridg(random.randint(3, 6))
+
+                elif buskshot[channe_id]['game'] == 7:
+                    cartridg(random.randint(3, 8))
+                
+
+                bush = await interaction.followup.send(f"новая игра\n{buskshot[channe_id]['info']['cartridge']}")
+
+                list_lyt = ["лупа", "нож", "енергетик", "наручники", "сыгарета", "магазин", "таблетки", "инвертор"]
+
+                for lyts in range(0, buskshot[channe_id]['lyt']):
+                    x = random.choice(list_lyt)
+                    y = random.choice(list_lyt)
+                    if x in buskshot[channe_id]['players'][player_1]['item']:
+                        buskshot[channe_id]['players'][player_1][x] += 1
+                    else:
+                        buskshot[channe_id]['players'][player_1]['item'].append(x)
+                        buskshot[channe_id]['players'][player_1][x] += 1
+
+                    if y in buskshot[channe_id]['players'][player_2]['item']:
+                        buskshot[channe_id]['players'][player_2][y] += 1
+                    else:
+                        buskshot[channe_id]['players'][player_2]['item'].append(y)
+                        buskshot[channe_id]['players'][player_2][y] += 1
+
+                await asyncio.sleep(3)
+                await interaction.followup.delete_message(bush.id)
+                
+
+            buskshot[channe_id]['info']['cart'] = random.choice(buskshot[channe_id]['info']['cartridge'])
+
+            async def attac(interaction: discord.Interaction):
+                member = interaction.user.id
+                if member == buskshot[channe_id]['info']['player']:
+                    if buskshot[channe_id]['info']['cart'] == "🔴":
+                        if buskshot[channe_id]['info']['x2'] == True:
+                            if buskshot[channe_id]['players'][member]['хп'] == 1:
+                                buskshot[channe_id]['players'][member]['хп'] -= 1
+                                await interaction.response.edit_message(content="Патрон оказался настоящим, у вас -1 хп", view=None)
+                            else:
+                                buskshot[channe_id]['players'][member]['хп'] -= 2
+                                await interaction.response.edit_message(content="Патрон оказался настоящим, у вас -2 хп", view=None)
+                            buskshot[channe_id]['info']['x2'] = False
+                        else:
+                            buskshot[channe_id]['players'][member]['хп'] -= 1
+                            await interaction.response.edit_message(content="Патрон оказался настоящим, у вас -1 хп", view=None)
+                        if buskshot[channe_id]['info']['наручники'] == True:
+                            buskshot[channe_id]['info']['наручники'] = False
+                        else:
+                            if buskshot[channe_id]['info']['player'] == player_1:
+                                buskshot[channe_id]['info']['player'] = player_2
+                            elif buskshot[channe_id]['info']['player'] == player_2:
+                                buskshot[channe_id]['info']['player'] = player_1
+                        buskshot[channe_id]['info']['cartridge'].remove("🔴")
+                        await asyncio.sleep(3)
+                        await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                        await game(player_1, player_2)
+
+                    elif buskshot[channe_id]['info']['cart'] == "🔵":
+                        await interaction.response.edit_message(content="Ничего не произошло, продолжайте играть", view=None)
+                        buskshot[channe_id]['info']['cartridge'].remove("🔵")
+                        await asyncio.sleep(3)
+                        await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                        await game(player_1, player_2)
+
+                else:
+                    if member in buskshot[channe_id]['players']:
+                        await interaction.response.send_message("ожидайте свой ход", ephemeral=True)
+                    else:
+                        await interaction.response.send_message("игра занятя, создайте свою игру", ephemeral=True)
+
+            async def deffen(interaction: discord.Interaction):
+                member = interaction.user.id
+                if member == buskshot[channe_id]['info']['player']:
+                    if member == player_1:
+                        if buskshot[channe_id]['info']['cart'] == "🔴":
+                            if buskshot[channe_id]['info']['x2'] == True:
+                                if buskshot[channe_id]['players'][player_2]['хп'] == 1:
+                                    buskshot[channe_id]['players'][player_2]['хп'] -= 1
+                                    await interaction.response.edit_message(content="Выстрел прошёл успешно! Вы сняли игроку 1 хп", view=None)
+                                else:
+                                    buskshot[channe_id]['players'][player_2]['хп'] -= 2
+                                    await interaction.response.edit_message(content="Выстрел прошёл успешно! Вы сняли игроку 2 хп", view=None)
+                                buskshot[channe_id]['info']['x2'] = False
+                            else:
+                                buskshot[channe_id]['players'][player_2]['хп'] -= 1
+                                await interaction.response.edit_message(content="Выстрел прошёл успешно! Вы сняли игроку 1 хп", view=None)
+                            if buskshot[channe_id]['info']['наручники'] == True:
+                                buskshot[channe_id]['info']['наручники'] = False
+                            else:
+                                buskshot[channe_id]['info']['player'] = player_2
+                            buskshot[channe_id]['info']['cartridge'].remove("🔴")
+                            await asyncio.sleep(3)
+                            await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                            await game(player_1, player_2)
+
+                        elif buskshot[channe_id]['info']['cart'] == "🔵":
+                            await interaction.response.edit_message(content="Ничего не произошло", view=None)
+                            buskshot[channe_id]['info']['cartridge'].remove("🔵")
+                            if buskshot[channe_id]['info']['наручники'] == True:
+                                buskshot[channe_id]['info']['наручники'] = False
+                            else:
+                                buskshot[channe_id]['info']['player'] = player_2
+                            await asyncio.sleep(3)
+                            await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                            await game(player_1, player_2)
+                    
+                    if member == player_2:
+                        if buskshot[channe_id]['info']['cart'] == "🔴":
+                            if buskshot[channe_id]['info']['x2'] == True:
+                                if buskshot[channe_id]['players'][player_1]['хп'] == 1:
+                                    buskshot[channe_id]['players'][player_1]['хп'] -= 1
+                                    await interaction.response.edit_message(content="Выстрел прошёл успешно! Вы сняли игроку 1 хп", view=None)
+                                else:
+                                    buskshot[channe_id]['players'][player_1]['хп'] -= 2
+                                    await interaction.response.edit_message(content="Выстрел прошёл успешно! Вы сняли игроку 2 хп", view=None)
+                                buskshot[channe_id]['info']['x2'] = False
+                            else:
+                                buskshot[channe_id]['players'][player_1]['хп'] -= 1
+                                await interaction.response.edit_message(content="Выстрел прошёл успешно! Вы сняли игроку 1 хп", view=None)
+                            if buskshot[channe_id]['info']['наручники'] == True:
+                                buskshot[channe_id]['info']['наручники'] = False
+                            else:
+                                buskshot[channe_id]['info']['player'] = player_1
+                            buskshot[channe_id]['info']['cartridge'].remove("🔴")
+                            await asyncio.sleep(3)
+                            await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                            await game(player_1, player_2)
+
+                        elif buskshot[channe_id]['info']['cart'] == "🔵":
+                            await interaction.response.edit_message(content="Ничего не произошло", view=None)
+                            buskshot[channe_id]['info']['cartridge'].remove("🔵")
+                            if buskshot[channe_id]['info']['наручники'] == True:
+                                buskshot[channe_id]['info']['наручники'] = False
+                            else:
+                                buskshot[channe_id]['info']['player'] = player_1
+                            await asyncio.sleep(3)
+                            await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                            await game(player_1, player_2)
+
+                else:
+                    if member in buskshot[channe_id]['players']:
+                        await interaction.response.send_message("ожидайте свой ход", ephemeral=True)
+                    else:
+                        await interaction.response.send_message("игра занятя, создайте свою игру", ephemeral=True)
+
+
+            async def item(interaction: discord.Interaction):
+                member = interaction.user.id
+                if member == buskshot[channe_id]['info']['player']:
+
+                    if interaction.data['values'][0] == "лупа":
+                        if buskshot[channe_id]['players'][member]['лупа'] == 0:
+                            await interaction.response.send_message("у вас закончился этот предмет", ephemeral=True)
+                            return
+                        await interaction.response.send_message("пользователь использовал лупу")
+                        await interaction.followup.send(f"Дробовик содержит {buskshot[channe_id]['info']['cart']} патрон", ephemeral=True)
+                        buskshot[channe_id]['players'][member]['лупа'] -= 1
+                        if buskshot[channe_id]['players'][member]['лупа'] == 0:
+                            buskshot[channe_id]['players'][member]['item'].remove("лупа")
+                        await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                        await chat()
+                        await asyncio.sleep(3)
+                        await interaction.delete_original_response()
+
+                    elif interaction.data['values'][0] == "нож":
+                        if buskshot[channe_id]['players'][member]['нож'] == 0:
+                            await interaction.response.send_message("у вас закончился этот предмет", ephemeral=True)
+                            return
+                        if buskshot[channe_id]['info']['x2'] == True:
+                            await interaction.response.send_message("вы уже использовали этот предмет", ephemeral=True)
+                            return
+                        buskshot[channe_id]['info']['x2'] = True
+                        await interaction.response.send_message("пользователь использовал нож")
+                        buskshot[channe_id]['players'][member]['нож'] -= 1
+                        if buskshot[channe_id]['players'][member]['нож'] == 0:
+                            buskshot[channe_id]['players'][member]['item'].remove("нож")
+                        await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                        await chat()
+                        await asyncio.sleep(3)
+                        await interaction.delete_original_response()
+
+                    elif interaction.data['values'][0] == "енергетик":
+                        if buskshot[channe_id]['players'][member]['енергетик'] == 0:
+                            await interaction.response.send_message("у вас закончился этот предмет", ephemeral=True)
+                            return
+                        await interaction.response.send_message(f"пользователь использовал енергетик\nИ тем же разрядил дробовик на {buskshot[channe_id]['info']['cart']} патрон")
+                        buskshot[channe_id]['info']['cartridge'].remove(buskshot[channe_id]['info']['cart'])
+                        buskshot[channe_id]['info']['cart'] = None
+                        buskshot[channe_id]['players'][member]['енергетик'] -= 1
+                        if buskshot[channe_id]['players'][member]['енергетик'] == 0:
+                            buskshot[channe_id]['players'][member]['item'].remove("енергетик")
+                        await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                        await game(player_1, player_2)
+                        await asyncio.sleep(3)
+                        await interaction.delete_original_response()
+
+                    elif interaction.data['values'][0] == "наручники":
+                        if buskshot[channe_id]['players'][member]['наручники'] == 0:
+                            await interaction.response.send_message("у вас закончился этот предмет", ephemeral=True)
+                            return
+                        if buskshot[channe_id]['info']['наручники'] == True:
+                            await interaction.response.send_message("вы уже использовали этот предмет", ephemeral=True)
+                            return
+                        buskshot[channe_id]['info']['наручники'] = True
+                        await interaction.response.send_message("пользователь использовал нарушники")
+                        buskshot[channe_id]['players'][member]['наручники'] -= 1
+                        if buskshot[channe_id]['players'][member]['наручники'] == 0:
+                            buskshot[channe_id]['players'][member]['item'].remove("наручники")
+                        await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                        await chat()
+                        await asyncio.sleep(3)
+                        await interaction.delete_original_response()
+
+                    elif interaction.data['values'][0] == "сыгарета":
+                        if buskshot[channe_id]['players'][member]['сыгарета'] == 0:
+                            await interaction.response.send_message("у вас закончился этот предмет", ephemeral=True)
+                            return
+                        await interaction.response.send_message("пользователь использовал сыгарету")
+                        if buskshot[channe_id]['players'][member]['хп'] == buskshot[channe_id]['players'][member]['Мхп']:
+                            pass
+                        else:
+                            buskshot[channe_id]['players'][member]['хп'] += 1
+                        buskshot[channe_id]['players'][member]['сыгарета'] -= 1
+                        if buskshot[channe_id]['players'][member]['сыгарета'] == 0:
+                            buskshot[channe_id]['players'][member]['item'].remove("сыгарета")
+                        await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                        await chat()
+                        await asyncio.sleep(3)
+                        await interaction.delete_original_response()
+
+                    elif interaction.data['values'][0] == "магазин": 
+                        if buskshot[channe_id]['players'][member]['магазин'] == 0:
+                            await interaction.response.send_message("у вас закончился этот предмет", ephemeral=True)
+                            return
+                        await interaction.response.send_message("пользователь использовал магазин")
+                        magaz = ["🔴", "🔵"]
+                        magazs = random.choice(magaz)
+                        buskshot[channe_id]['info']['cartridge'] += magazs
+                        await interaction.followup.send(f"в магазине оказался {magazs} патрон", ephemeral=True)
+                        buskshot[channe_id]['players'][member]['магазин'] -= 1
+                        if buskshot[channe_id]['players'][member]['магазин'] == 0:
+                            buskshot[channe_id]['players'][member]['item'].remove("магазин")
+                        await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                        await chat()
+                        await asyncio.sleep(3)
+                        await interaction.delete_original_response()
+
+                    elif interaction.data['values'][0] == "таблетки":
+                        if buskshot[channe_id]['players'][member]['таблетки'] == 0:
+                            await interaction.response.send_message("у вас закончился этот предмет", ephemeral=True)
+                            return
+                        await interaction.response.send_message("пользователь использовал таблетки")
+                        z = random.choice(range(0, 3))
+                        if z == 0 or z == 2:
+                            buskshot[channe_id]['players'][member]['хп'] -= 1
+                            if buskshot[channe_id]['players'][member]['хп'] == 0:
+                                if member == player_1:
+                                    await interaction.followup.send(f"игра окончена <@{player_2}> победил")
+                                    del buskshot[channe_id]
+                                    return
+                                elif member == player_2:
+                                    await interaction.followup.send(f"игра окончена <@{player_1}> победил")
+                                    del buskshot[channe_id]
+                                    return
+                            buskshot[channe_id]['players'][member]['таблетки'] -= 1
+                            if buskshot[channe_id]['players'][member]['таблетки'] == 0:
+                                buskshot[channe_id]['players'][member]['item'].remove("таблетки")
+                            await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                            await chat()
+                            await asyncio.sleep(3)
+                            await interaction.delete_original_response()
+
+                        elif z == 1:
+                            if buskshot[channe_id]['players'][member]['хп'] == buskshot[channe_id]['players'][member]['Мхп']:
+                                pass
+                            else:
+                                buskshot[channe_id]['players'][member]['хп'] += 2
+                                if buskshot[channe_id]['players'][member]['хп'] > buskshot[channe_id]['players'][member]['Мхп']:
+                                    buskshot[channe_id]['players'][member]['хп'] -= 1
+                                
+                            buskshot[channe_id]['players'][member]['таблетки'] -= 1
+                            if buskshot[channe_id]['players'][member]['таблетки'] == 0:
+                                buskshot[channe_id]['players'][member]['item'].remove("таблетки")
+                            await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                            await chat()
+                            await asyncio.sleep(3)
+                            await interaction.delete_original_response()
+
+                    
+                    elif interaction.data['values'][0] == "инвертор":
+                        if buskshot[channe_id]['players'][member]['инвертор'] == 0:
+                            await interaction.response.send_message("у вас закончился этот предмет", ephemeral=True)
+                            return
+                        await interaction.response.send_message("пользователь использовал инвертор")
+                        if buskshot[channe_id]['info']['cart'] == "🔵":
+                            buskshot[channe_id]['info']['cartridge'].remove(buskshot[channe_id]['info']['cart'])
+                            buskshot[channe_id]['info']['cartridge'] += "🔴"
+                            buskshot[channe_id]['info']['cart'] = "🔴"
+                        
+                        elif buskshot[channe_id]['info']['cart'] == "🔴":
+                            buskshot[channe_id]['info']['cartridge'].remove(buskshot[channe_id]['info']['cart'])
+                            buskshot[channe_id]['info']['cartridge'] += "🔵"
+                            buskshot[channe_id]['info']['cart'] = "🔵"
+
+                        buskshot[channe_id]['players'][member]['инвертор'] -= 1
+                        if buskshot[channe_id]['players'][member]['инвертор'] == 0:
+                            buskshot[channe_id]['players'][member]['item'].remove("инвертор")
+                        await interaction.followup.delete_message(buskshot[channe_id]['info']['id'])
+                        await chat()
+                        await asyncio.sleep(3)
+                        await interaction.delete_original_response()
+                    
+
+                else:
+                    if member in buskshot[channe_id]['players']:
+                        await interaction.response.send_message("ожидайте свой ход", ephemeral=True)
+                    else:
+                        await interaction.response.send_message("игра занятя, создайте свою игру", ephemeral=True)
+
+            async def chat():
+
+                button1 = Button(label="в себя", style=discord.ButtonStyle.red)
+                button2 = Button(label="в игрока", style=discord.ButtonStyle.green)
+
+                button1.callback = attac
+                button2.callback = deffen
+
+                view_game = View()
+                view_game.add_item(button2)
+                view_game.add_item(button1)
+
+                if buskshot[channe_id]['players'][buskshot[channe_id]['info']['player']]['item'] == []:
+                    pass
+                else:
+                    options = []
+                    
+                    for items in buskshot[channe_id]['players'][buskshot[channe_id]['info']['player']]['item']:
+                        options.append(discord.SelectOption(label=f"{items}"))
+
+                    select = discord.ui.Select(placeholder="выберите предмет", min_values=1, max_values=1, options=options)
+
+                    select.callback = item
+
+                    view_game.add_item(select)
+
+                prebmet = None
+                
+                if buskshot[channe_id]['players'][buskshot[channe_id]['info']['player']]['item'] == []:
+                    prebmet = "пусто"
+                else:
+                    prebmet = ""
+                    for lyts in buskshot[channe_id]['players'][buskshot[channe_id]['info']['player']]['item']:
+                        prebmet += f"{buskshot[channe_id]['players'][buskshot[channe_id]['info']['player']][lyts]} {lyts}\n"
+
+                
+                drobovuk = 1 if buskshot[channe_id]['info']['x2'] == False else 2
+                xod = await interaction.followup.send(f"""
+                                                      
+| игрок <@{buskshot[channe_id]['info']['player']}> | ХП {buskshot[channe_id]['players'][buskshot[channe_id]['info']['player']]['хп']} | урон {drobovuk} |
+
+предметы:
+{prebmet}
+
+""", view=view_game)
+                
+                buskshot[channe_id]['info']['id'] = xod.id
+            await chat()
+
+
+
+        await game(player_1, player_2)
+
+
+    async def add_player(interaction: discord.Interaction):
+        interaction1 = interaction.message.id
+        member = interaction.user.id
+
+        if channe_id in buskshot:
+            if member in buskshot[channe_id]['players']:
+                await interaction.response.send_message("вы уже вошли в комнату", ephemeral=True)
+                return
+            
+            if len(buskshot[channe_id]['players']) == 2:
+                await interaction.response.send_message("комната занята", ephemeral=True)
+            else:
+                buskshot[channe_id]['players'][member] = {"Мхп": 2, "хп": 2, "лупа": 0, "нож": 0, "енергетик": 0, "наручники": 0, "сыгарета": 0, "магазин": 0, "таблетки": 0, "инвертор": 0, "item": []}
+                await interaction.response.send_message("вы вышли в комнату", ephemeral=True)
+                start_button.disabled = False
+                add_pley_button.disabled = True
+                await interaction.followup.edit_message(content="Добро пожаловать в Buckshot Roulette создайте комнату, и после выберите режим игры и наслаждайтесь игрой\n2 игроков в комнате ожидания, пожалуста начните игру", message_id=interaction1, view=view)
+        else:
+            buskshot[channe_id] = {'players': {member: {"Мхп": None, "хп": None, "лупа": 0, "нож": 0, "енергетик": 0, "наручники": 0, "сыгарета": 0, "магазин": 0, "таблетки": 0, "инвертор": 0, "item": []}}, 'info': {"cartridge": [], "cart": None, "player": None, "id": None, "x2": False, "наручники": False}, 'game': None, 'lyt': None}
+            await interaction.response.send_message("вы создали комнату", ephemeral=True)
+            view.add_item(selec)
+            await interaction.followup.edit_message(content="Добро пожаловать в Buckshot Roulette создайте комнату, и после выберите режим игры и наслаждайтесь игрой\n1 игрок в комнате ожидания", message_id=interaction1, view=view)
+
+    async def info(interaction: discord.Interaction):
+
+        async def info_menu(interaction: discord.Interaction):
+            if interaction.data['values'][0] == "лупа":
+                await interaction.response.send_message(tekst.buckshot_roulette_1, ephemeral=True)
+            elif interaction.data['values'][0] == "нож":
+                await interaction.response.send_message(tekst.buckshot_roulette_2, ephemeral=True)
+            elif interaction.data['values'][0] == "енергетик":
+                await interaction.response.send_message(tekst.buckshot_roulette_3, ephemeral=True)
+            elif interaction.data['values'][0] == "наручники":
+                await interaction.response.send_message(tekst.buckshot_roulette_4, ephemeral=True)
+            elif interaction.data['values'][0] == "сыгарета":
+                await interaction.response.send_message(tekst.buckshot_roulette_5, ephemeral=True)
+            elif interaction.data['values'][0] == "магазин":
+                await interaction.response.send_message(tekst.buckshot_roulette_6, ephemeral=True)
+            elif interaction.data['values'][0] == "таблетки":
+                await interaction.response.send_message(tekst.buckshot_roulette_7, ephemeral=True)
+            elif interaction.data['values'][0] == "инвертор":
+                await interaction.response.send_message(tekst.buckshot_roulette_8, ephemeral=True)
+            
+
+        options_info = [
+        discord.SelectOption(label="лупа"),
+        discord.SelectOption(label="нож"),
+        discord.SelectOption(label="енергетик"),
+        discord.SelectOption(label="наручники"),
+        discord.SelectOption(label="сыгарета"),
+        discord.SelectOption(label="магазин"),
+        discord.SelectOption(label="таблетки"),
+        discord.SelectOption(label="инвертор")
+    ]
+        infoo = discord.ui.Select(placeholder="выберите предмет", min_values=1, max_values=1, options=options_info)
+        infoo.callback = info_menu
+
+        view_info = View()
+        view_info.add_item(infoo)
+
+        await interaction.response.send_message(tekst.buckshot_roulette, ephemeral=True, view=view_info)
+
+    async def menu(interaction: discord.Interaction):
+        if interaction.data['values'][0] == "легкий":
+            buskshot[channe_id]['game'] = 1
+
+        elif interaction.data['values'][0] == "средьный":
+            buskshot[channe_id]['game'] = 2
+
+        elif interaction.data['values'][0] == "тяжелый":
+            buskshot[channe_id]['game'] = 3
+        await interaction.response.send_message(f"Вы выбрали {interaction.data['values'][0]}")
+        await asyncio.sleep(2)
+        await interaction.delete_original_response()
+
+    options_menu = [
+        discord.SelectOption(label="легкий"),
+        discord.SelectOption(label="средьный"),
+        discord.SelectOption(label="тяжелый")
+    ]
+
+    start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
+    button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
+    add_pley_button = Button(emoji=f"➕", style=discord.ButtonStyle.blurple)
+    selec = discord.ui.Select(placeholder="выберите сложность", min_values=1, max_values=1, options=options_menu)
+
+    start_button.callback = game_start
+    add_pley_button.callback = add_player
+    button_info.callback = info
+    selec.callback = menu
+
+    view = View(timeout=180)
+    view.add_item(start_button)
+    view.add_item(add_pley_button)
+    view.add_item(button_info)
+    stop_event = asyncio.Event()
+
+    async def timeout_callback():
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+        except asyncio.TimeoutError:
+            try:
+                del buskshot[channe_id]
+            except:
+                pass
+            
+    self.client.loop.create_task(timeout_callback()) 
+
+    start_button.disabled = True
+    await interaction.response.send_message("Добро пожаловать в Buckshot Roulette\nсоздайте комнату, и после выберите режим игры и наслаждайтесь игрой", view=view)
+
+###########################################################
+
+  @app_commands.command(name="ведьма", description="Играть в игровые автоматы.")
+  async def witch(self, interaction: discord.Interaction):
+    if interaction.guild is None:
+        await interaction.response.send_message(tekst.DM)
+        return
+    if config.witch == False:
+        await interaction.response.send_message(tekst.nots)
+        return
+    channe_id = interaction.channel_id
+
+    async def game_start(interaction: discord.Interaction):
+        stop_event.set()
+        keys = list(witch[channe_id]['players'].keys())
+        player_1 = keys[0] if len(keys) > 0 else None
+        player_2 = keys[1] if len(keys) > 1 else None
+        player_3 = keys[2] if len(keys) > 2 else None
+        player_4 = keys[3] if len(keys) > 3 else None
+        player_5 = keys[4] if len(keys) > 4 else None
+
+        player_0 = [player_1, player_2, player_3, player_4, player_5]
+        playerss = []
+
+        for player in player_0:
+            if player is None:
+                continue
+            else:
+                playerss.append(player)
+
+        witch[channe_id]['info']['player'] = playerss
+
+        karts = ["7♥️", "8♥️", "9♥️", "🔟♥️", "🇯♥️", "🇶♥️", "🇰♥️", "🇦♥️",
+                "7♦️", "8♦️", "9♦️", "🔟♦️", "🇯♦️", "🇶♦️", "🇰♦️", "🇦♦️",
+                "7♠️", "8♠️", "9♠️", "🔟♠️", "🇯♠️", "🇶♠️", "🇰♠️", "🇦♠️",
+                "7♣️", "8♣️", "9♣️", "🔟♣️", "🇯♣️", "🇰♣️", "🇦♣️"]
+
+        if len(witch[channe_id]['players']) > 3:
+            karts = ["2♥️", "3♥️", "4♥️", "5♥️", "6♥️", "7♥️", "8♥️", "9♥️", "🔟♥️", "🇯♥️", "🇶♥️", "🇰♥️", "🇦♥️",
+                "2♦️", "3♦️", "4♦️", "5♦️", "6♦️", "7♦️", "8♦️", "9♦️", "🔟♦️", "🇯♦️", "🇶♦️", "🇰♦️", "🇦♦️",
+                "2♠️", "3♠️", "4♠️", "5♠️", "6♠️", "7♠️", "8♠️", "9♠️", "🔟♠️", "🇯♠️", "🇶♠️", "🇰♠️", "🇦♠️",
+                "2♣️", "3♣️", "4♣️", "5♣️", "6♣️", "7♣️", "8♣️", "9♣️", "🔟♣️", "🇯♣️", "🇰♣️", "🇦♣️"]
+        
+        while True:
+            for players in playerss:
+                if karts == []:
+                    break
+                kart = random.choice(karts)
+                my_list = []
+                my_list.extend(list(kart))
+                my1 = my_list[0]
+                my2 = my_list[1]
+                if kart == "🇶♠️":
+                    witch[channe_id]['players'][players]['карты']["♠️"] = "🇶"
+                    karts.remove(kart)
+                    continue
+                
+                if my1 == "8":
+                    my1 = "2️⃣"
+                elif my1 == "9":
+                    my1 = "3️⃣"
+                elif my1 == "7":
+                    my1 = "4️⃣"
+                elif my1 == "8":
+                    my1 = "5️⃣"
+                elif my1 == "9":
+                    my1 = "6️⃣"
+                elif my1 == "7":
+                    my1 = "7️⃣"
+                elif my1 == "8":
+                    my1 = "8️⃣"
+                elif my1 == "9":
+                    my1 = "9️⃣"
+                
+                if my1 in witch[channe_id]['players'][players]['карты']:
+                    del witch[channe_id]['players'][players]['карты'][my1]
+                else:
+                    witch[channe_id]['players'][players]['карты'][my1] = my2
+                karts.remove(kart)
+            if karts == []:
+                break
+
+        print(f"""<@{player_1}> карты:\n
+{witch[channe_id]['players'][player_1]['карты']}
+<@{player_2}> карты:
+{witch[channe_id]['players'][player_2]['карты']}
+""")
+
+        async def chatt(coin):
+
+            try:
+                for play in witch[channe_id]['players']:
+                    if witch[channe_id]['players'][play]['карты'] == {}:
+                        
+                        del witch[channe_id]['players'][play]
+                        await interaction.followup.send(f"у игрока <@{play}> закончились карты")
+                        
+            except:
+                
+                pass
+
+            
+            if len(witch[channe_id]['players']) == 1:
+                ke = list(witch[channe_id]['players'].keys())
+                await interaction.followup.send(f"игрок <@{ke[0]}> стал ведьмой, игра закончилась")
+                del witch[channe_id]
+                return
+            
+        
+            async def chat(interaction: discord.Interaction):
+                keys1 = list(witch[channe_id]['players'].keys())
+
+                if interaction.user.id in witch[channe_id]['players']:
+                    pass
+                else:
+                    await interaction.response.send_message("вы не участник или больше не участвуете в игре", ephemeral=True)
+                    return
+                
+                async def kart(interaction: discord.Interaction):
+                    if interaction.user.id == witch[channe_id]['info']['player'][0]:
+                        pass
+                    else:
+                        await interaction.response.send_message("ожидайте свой ход", ephemeral=True)
+                        return
+                    
+                    user = None
+                    try:
+                        key = list(witch[channe_id]['players'][witch[channe_id]['info']['player'][1]]['карты'].keys())
+                        user = witch[channe_id]['players'][witch[channe_id]['info']['player'][1]]['карты']
+                    except:
+                        key = list(witch[channe_id]['players'][keys1[0]]['карты'].keys())
+                        user = witch[channe_id]['players'][keys1[0]]['карты']
+
+                    key_key = int(interaction.data['values'][0])
+                    if key[key_key - 1] in witch[channe_id]['players'][interaction.user.id]['карты']:
+                        del witch[channe_id]['players'][interaction.user.id]['карты'][key[key_key - 1]]
+                        try:
+                            await interaction.response.edit_message(content=f"Вы вытянули {key[key_key - 1]}|{user[key[key_key - 1]]} карту\nУ вас оказалась пара из {key[key_key - 1]} и автоматически скинута", view=None)
+                        except:
+                            pass
+                    else:
+                        witch[channe_id]['players'][interaction.user.id]['карты'][key[key_key - 1]] = user[key[key_key - 1]]
+                        try:
+                            await interaction.response.edit_message(content=f"Вы вытянули {key[key_key - 1]}|{user[key[key_key - 1]]} карту", view=None)
+                        except:
+                            pass
+                    
+                    del user[key[key_key - 1]]
+                    
+                    witch[channe_id]['info']['player'].remove(witch[channe_id]['info']['player'][0])
+                    if witch[channe_id]['info']['player'] == []:
+                        playerss = []
+
+                        for player in player_0:
+                            if player is None:
+                                continue
+                            else:
+                                playerss.append(player)
+
+                        witch[channe_id]['info']['player'] = playerss
+
+                    op = await interaction.followup.send(f"игрок {interaction.user} сделал свой ход")
+                    try:
+                        await interaction.followup.delete_message(witch[channe_id]['info']['id'])
+                    except:
+                        pass
+                    await asyncio.sleep(3)
+                    await interaction.followup.delete_message(op.id)
+                    await chatt(0)
+                
+                options = []
+
+                try:
+                    option = witch[channe_id]['info']['player'][1]
+                except:
+                    option = keys1[0]
+
+                for opt in range(len(witch[channe_id]['players'][option]['карты'])):
+                    opt += 1
+                    options.append(discord.SelectOption(emoji="🃏", label=f"{opt}"))
+
+                select = discord.ui.Select(
+            placeholder="выберите карту",
+            min_values=1,
+            max_values=1,
+            options=options
+                                )
+                select.callback = kart
+
+                view = View()
+                view.add_item(select)
+
+                player_kart = ""
+                coced = witch[channe_id]['info']['player'][1] if len(witch[channe_id]['info']['player']) == 0 else player_1
+                
+                if interaction.user.id == witch[channe_id]['info']['player'][0]:
+                    for key in witch[channe_id]['players'][witch[channe_id]['info']['player'][0]]['карты']:
+                        if key == "♠️":
+                            player_kart += f"╠{witch[channe_id]['players'][witch[channe_id]['info']['player'][0]]['карты'][key]}|{key}\n"
+                            continue
+                        player_kart += f"╠{key}|{witch[channe_id]['players'][witch[channe_id]['info']['player'][0]]['карты'][key]}\n"
+                
+                    await interaction.response.send_message(f"""
+---|<@{witch[channe_id]['info']['player'][0]}>|---
+
+-|карт({len(witch[channe_id]['players'][witch[channe_id]['info']['player'][0]]['карты'])})|-                                           
+╔=-----
+{player_kart}╚=-----
+
+-|"Возьмите" карту у соседа <@{coced}>|-
+""", ephemeral=True, view=view)
+    
+                else:
+
+                    for key in witch[channe_id]['players'][interaction.user.id]['карты']:
+                        if key == "♠️":
+                            player_kart += f"╠{witch[channe_id]['players'][interaction.user.id]['карты'][key]}|{key}\n"
+                            continue
+                        player_kart += f"╠{key}|{witch[channe_id]['players'][interaction.user.id]['карты'][key]}\n"
+                
+                    await interaction.response.send_message(f"""
+---|<@{interaction.user.id}>|---
+
+-|карт({len(witch[channe_id]['players'][interaction.user.id]['карты'])})|-                                           
+╔=-----
+{player_kart}╚=-----
+""", ephemeral=True)
+        
+
+            button_menu = Button(emoji="🃏", style=discord.ButtonStyle.blurple)
+
+            button_menu.callback = chat
+
+            view_menu = View()
+            view_menu.add_item(button_menu)
+
+            if coin == 1:
+                await interaction.response.edit_message(content="Игра началась, удачной игры!", view=None)
+                id = await interaction.followup.send(content=f"Первый ход делает пользователь: <@{player_1}>\nВ 🃏 можно посмотреть как свои карты так и взять карту у соседа, в случае если ваш ход.", view=view_menu)
+                witch[channe_id]['info']['id'] = id.id
+                
+            else:
+                id = await interaction.followup.send(f"Игрок <@{witch[channe_id]['info']['player'][0]}> ваш ход", view=view_menu)
+                witch[channe_id]['info']['id'] = id.id
+        await chatt(1)
+
+    async def add_player(interaction: discord.Interaction):
+        interaction1 = interaction.message.id
+        member = interaction.user.id
+
+        if channe_id in witch:
+            if member in witch[channe_id]['players']:
+                await interaction.response.send_message("вы уже вошли в комнату", ephemeral=True)
+                return
+            
+            if len(witch[channe_id]['players']) > 4:
+                await interaction.response.send_message("комната занята", ephemeral=True)
+            else:
+                witch[channe_id]['players'][member] = {"карты": {}}
+                await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
+                if len(witch[channe_id]['players']) == 5:
+                    add_pley_button.disabled = True
+                start_button.disabled = False
+                await interaction.followup.edit_message(content=f"Добро пожаловать в 'Ведьма'\nЭто много пользовательская карточная игра в котом вам предстоит НЕ остаться Ведьмой\nВ ожидании: {len(witch[channe_id]['players'])} игрок", message_id=interaction1, view=view)
+        else:
+            witch[channe_id] = {'players': {member: {"карты": {}}}, "info": {"player": None, "id": None}}
+            await interaction.response.send_message("вы создали комнату", ephemeral=True)
+            await interaction.followup.edit_message(content="Добро пожаловать в 'Ведьма'\nЭто много пользовательская карточная игра в котом вам предстоит НЕ остаться Ведьмой\nВ ожидании: 1 игрок", message_id=interaction1, view=view)
+
+
+    async def info(interaction: discord.Interaction):
+        await interaction.response.send_message(tekst.witch, ephemeral=True)
+    
+    start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
+    button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
+    add_pley_button = Button(emoji=f"➕", style=discord.ButtonStyle.blurple)
+
+    start_button.callback = game_start
+    add_pley_button.callback = add_player
+    button_info.callback = info
+
+    view = View()
+    view.add_item(start_button)
+    view.add_item(add_pley_button)
+    view.add_item(button_info)
+    stop_event = asyncio.Event()
+
+    async def timeout_callback():
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+        except asyncio.TimeoutError:
+            try:
+                del witch[channe_id]
+            except:
+                pass
+            
+    self.client.loop.create_task(timeout_callback()) 
+
+    start_button.disabled = True
+    await interaction.response.send_message("Добро пожаловать в 'Ведьма'\nЭто много пользовательская карточная игра в котом вам предстоит НЕ остаться Ведьмой", view=view)
+
 
 async def setup(client:commands.Bot) -> None:
   await client.add_cog(fun(client))
