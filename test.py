@@ -1,35 +1,88 @@
 import random
 
-lol = {}
+buskshot = {}
 
-lol[123456789] = {'play': {"hello": 1, "kok": 4, "ji": 2}}
+def cartridg():
+        buskshot["channe_id"] = {"info": {'cartridge': []}}
+        cartridge = ["🔴", "🔵"]
+        
+        for _ in range(0, 3):
+            buskshot['channe_id']['info']['cartridge'] += random.choice(cartridge)
+        
+        def are_all_cartridges_same(cartridge_list):
+            # Проверяем, являются ли все элементы списка одинаковыми
+            return all(item == cartridge_list[0] for item in cartridge_list)
 
-# keys = list(lol[123456789]['play'].keys())
+        # Получаем список cartridges
+        cartridges = buskshot['channe_id']['info']['cartridge']
 
-# q = keys[0] if len(keys) > 0 else None
-# q1 = keys[1] if len(keys) > 1 else None
-# q2 = keys[2] if len(keys) > 2 else None
-# q3 = keys[3] if len(keys) > 3 else None
-# q4 = None
-# q5 = None
+        # Проверяем и выводим результат
+        if are_all_cartridges_same(cartridges):
+            if cartridges[0] == "🔴":
+                print(buskshot['channe_id']['info']['cartridge'])
+                print("Все картриджи красные")
+                cartridges.remove("🔴")
+                cartridges.append("🔵")
+                
+            elif cartridges[0] == "🔵":
+                print(buskshot['channe_id']['info']['cartridge'])
+                print("Все картриджи синие")
+                cartridges.remove("🔵")
+                cartridges.append("🔴")
+            else:
+                print("Ошибка: неизвестный цвет картриджей")
+        else:
+            print("Картриджи разных цветов")
+        print(buskshot['channe_id']['info']['cartridge'])
+# cartridg()
+# if buskshot['channe_id']['info']['cartridge'] == []:
+#      print(1)
+# buskshot['channe_id']['info']['cartridge'].remove("🔴")
+# buskshot['channe_id']['info']['cartridge'].remove("🔴")
+# if buskshot['channe_id']['info']['cartridge'] == []:
+#      print(1)
+# buskshot['channe_id']['info']['cartridge'].remove("🔵")
 
-# lol[123456789]["play"]["hello"]
+# if buskshot['channe_id']['info']['cartridge'] == []:
+#      print(1)
 
-# print(f"q = {q}")
-# print(f"q1 = {q1}")
-# print(f"q2 = {q2}")
-# print(f"q3 = {q3}")
-# print(f"q4 = {q4}")
-# print(f"q5 = {q5}")
-# lol[123456789]["play"]["hello"] += 1
-# k = random.choice(keys)
+# lypa # лупа
+# noz # нож
+# energi # енергетик
+# narycnik # нарушники
+# cugara # сыгарета
+# magaz # магазин
 
-del lol[123456789]["play"]['hello']
+# async def menu_callback(interaction: discord.Interaction):
+#     stop_event.set()
 
-print(lol[123456789]["play"])
+# options = []
 
-# n = 7
+# for opt in list_mafia[channel_id]['players']:
+#     opts = guild.get_member(opt)
+#     options.append(discord.SelectOption(label=f"{opts}"))
 
-# if n > 4 and n < 7:
-#     print(1)
+# select = discord.ui.Select(
+#         placeholder="выберите игрока",
+#         min_values=1,
+#         max_values=1,
+#         options=options
+#                             )
+# select.callback = menu_callback
+                        
+# view = discord.ui.View(timeout=20)
+# view.add_item(select)
+
+# stop_event = asyncio.Event()
+
+# async def timeout_callback():
+#     try:
+#         await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+#     except asyncio.TimeoutError:
+#         await don()
+
+# self.client.loop.create_task(timeout_callback()) 
+hello = {"name": {"mo": ["1", "2", "3"]}}
+h = random.randint(0, 3)
+print(h)
 
