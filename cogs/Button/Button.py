@@ -14,7 +14,7 @@ from discord import app_commands
 
 import json, random
 import config
-import cogs.tekst as tekst
+import cogs.text.tekst as tekst
 import cogs.command.fun as fun
 
 

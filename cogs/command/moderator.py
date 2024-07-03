@@ -6,6 +6,7 @@ from discord import app_commands
 from discord.ui import Button, View
 import requests
 import config
+import cogs.text.slad as slad
 
 class moderator(commands.Cog):
   def __init__(self, client: commands.Bot):
@@ -64,12 +65,15 @@ class moderator(commands.Cog):
       content=f"""```ini
 список команд | Префикс: {self.prefix}
 
-[{self.prefix}rps] камень, ножницы, бумага
-[{self.prefix}slot] игровый автомат
-[{self.prefix}8ball] вольшебная восьмерка
-[{self.prefix}mafia] мафия в дискорде
-[{self.prefix}Buckshot roulette] русская рулетка)
-[{self.prefix}ведьма] карточная игра ведьма
+[{self.prefix}rps] камень, ножницы, бумага.
+[{self.prefix}slot] игровый автомат.
+[{self.prefix}8ball] вольшебная восьмерка.
+[{self.prefix}mafia] мафия в дискорде.
+[{self.prefix}Buckshot roulette] русская рулетка.
+[{self.prefix}ведьма] карточная игра ведьма.
+[{self.prefix}викторина] Вопросы викторины на различные темы.
+[{self.prefix}угадай_число] Игра на угадывание числа, загаданного ботом.
+[{self.prefix}виселица] игра, где нужно угадать слово по буквам.
 
 [{self.prefix}info] информация об боте
 ```""")
@@ -120,9 +124,30 @@ class moderator(commands.Cog):
 ```
 Спасибо за использование меня в играх! Если у вас есть вопросы или нужна помощь, обратитесь к моему автору.""", view=view)
 
-  # @commands.command(name="info")
-  # async def info(self, ctx: commands.Context):
-       
+  @commands.command(name="Haiko")
+  async def haiko(self, ctx: commands.Context):
+    message = await ctx.send("""
+╭─━━━━━───━──━━━⊱⋆⊰━━━─────━━━━━━─╮
+  `Хайло — добрый и отзывчивый друг, с кото`
+╰─━━━━━━━━─────━⊱⋆⊰━━━──━───━━━━━─╯
+""")
+
+    animate = [slad.animate1, slad.animate2, slad.animate3, slad.animate4, slad.animate5, slad.animate6, slad.animate7, slad.animate8, slad.animate9, slad.animate10,
+               slad.animate11, slad.animate12, slad.animate13, slad.animate14, slad.animate15, slad.animate16, slad.animate17, slad.animate18, slad.animate19, slad.animate20,
+               slad.animate21, slad.animate22, slad.animate23, slad.animate24, slad.animate25, slad.animate26, slad.animate27, slad.animate28, slad.animate29, slad.animate30,
+               slad.animate31, slad.animate32, slad.animate33, slad.animate34, slad.animate35, slad.animate36, slad.animate37, slad.animate38, slad.animate39, slad.animate40,
+               slad.animate41, slad.animate42, slad.animate43, slad.animate44, slad.animate45, slad.animate46, slad.animate47, slad.animate48, slad.animate49, slad.animate50,
+               slad.animate51, slad.animate52, slad.animate53, slad.animate54, slad.animate55, slad.animate56, slad.animate57, slad.animate58, slad.animate59, slad.animate60,
+               slad.animate61, slad.animate62, slad.animate63, slad.animate64, slad.animate65, slad.animate66, slad.animate67, slad.animate68, slad.animate69, slad.animate70,
+               slad.animate71, slad.animate72, slad.animate73, slad.animate74, slad.animate75, slad.animate76, slad.animate77, slad.animate78, slad.animate79, slad.animate80,
+               slad.animate81, slad.animate82, slad.animate83, slad.animate84, slad.animate85]
+    
+    await asyncio.sleep(2)
+    for i in animate:
+      await asyncio.sleep(0.4)
+      await message.edit(content=f"{i}")
+    
+
 
 async def setup(client:commands.Bot) -> None:
   await client.add_cog(moderator(client))

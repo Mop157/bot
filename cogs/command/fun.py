@@ -5,13 +5,15 @@ from discord.ext import commands, tasks
 from discord import app_commands
 from discord.ui import Button, View
 import config
-import cogs.tekst as tekst
+import cogs.text.tekst as tekst
 import cogs.Button.Button as button
+import cogs.text.Trivia_Quix_text as Quix
 
 list_rps = {}
 list_mafia = {}
 buskshot = {}
 witch = {}
+Trivia = {}
 
 class fun(commands.Cog):
   def __init__(self, client: commands.Bot):
@@ -1730,7 +1732,7 @@ class fun(commands.Cog):
 
 ###########################################################
 
-  @app_commands.command(name="ведьма", description="Играть в игровые автоматы.")
+  @app_commands.command(name="ведьма", description="Карточная игра Ведьма")
   async def witch(self, interaction: discord.Interaction):
     if interaction.guild is None:
         await interaction.response.send_message(tekst.DM)
@@ -2009,7 +2011,7 @@ class fun(commands.Cog):
     add_pley_button.callback = add_player
     button_info.callback = info
 
-    view = View()
+    view = View(timeout=180)
     view.add_item(start_button)
     view.add_item(add_pley_button)
     view.add_item(button_info)
@@ -2029,6 +2031,328 @@ class fun(commands.Cog):
     start_button.disabled = True
     await interaction.response.send_message("Добро пожаловать в 'Ведьма'\nЭто много пользовательская карточная игра в котом вам предстоит НЕ остаться Ведьмой", view=view)
 
+  @app_commands.command(name="викторина", description="Вопросы викторины на различные темы.")
+  async def Trivia_Quiz(self, interaction: discord.Interaction):
+
+    if interaction.guild is None:
+        await interaction.response.send_message(tekst.DM)
+        return
+    if config.Trivia_Quiz == False:
+        await interaction.response.send_message(tekst.nots)
+        return
+    
+    channe_id = interaction.channel_id
+
+    async def game_start(interaction: discord.Interaction):
+        await interaction.response.edit_message(view=None)
+        await interaction.delete_original_response()
+        keys = list(Trivia[channe_id]['players'].keys())
+        player_1 = keys[0]
+        player_2 = keys[1]
+
+        Trivia[channe_id]['info']['вопрос'] = random.choice(list(Quix.text))
+        Trivia[channe_id]['info']['ответ'] = Quix.text[Trivia[channe_id]['info']['вопрос']]
+
+        id = await interaction.followup.send("Ожидание..")
+        Trivia[channe_id]['info']['id'] = id.id
+
+        async def new_lvl():
+            await interaction.followup.edit_message(message_id=Trivia[channe_id]['info']['id'], content=f"""
+.                                   Викторина 
+                      ═──────⊱⋆⊰─────═
+                                      уровень {Trivia[channe_id]['info']['lvl']} 
+
+- <@{player_1}>: {Trivia[channe_id]['players'][player_1]['point']} | ответ: {Trivia[channe_id]['players'][player_1]['ответ']}                    
+- <@{player_2}>: {Trivia[channe_id]['players'][player_2]['point']} | ответ: {Trivia[channe_id]['players'][player_2]['ответ']}      
+
+╔═━────═──────⊱⋆⊰─────═─────━═╗
+                        Правильный ответ - {Trivia[channe_id]['info']['ответ']}
+╚═━────═──────⊱⋆⊰─────═─────━═╝
+всем кто ответил правильно получают +1
+""", view=None)
+            
+            for game_out in Trivia[channe_id]['players']:
+                Trivia[channe_id]['players'][game_out]['ход'] = False
+                if str(Trivia[channe_id]['players'][game_out]['ответ']) == str(Trivia[channe_id]['info']['ответ']):
+                    Trivia[channe_id]['players'][game_out]['point'] += 1
+
+                if Trivia[channe_id]['players'][player_1]['point'] == 3 and Trivia[channe_id]['players'][player_2]['point'] == 3:
+                    await asyncio.sleep(6)
+                    await interaction.followup.edit_message(message_id=Trivia[channe_id]['info']['id'], content=f"""
+.                                 Викторина 
+            
+╔═━────═──────⊱⋆⊰─────═─────━═╗
+                    победитель - ничья
+╚═━────═──────⊱⋆⊰─────═─────━═╝
+""")
+                    del Trivia[channe_id]
+                    return
+
+                if Trivia[channe_id]['players'][game_out]['point'] == 3:
+                    await asyncio.sleep(6)
+                    await interaction.followup.edit_message(message_id=Trivia[channe_id]['info']['id'], content=f"""
+.                                 Викторина 
+            
+╔═━────═──────⊱⋆⊰─────═─────━═╗
+                    победитель - <@{game_out}>
+╚═━────═──────⊱⋆⊰─────═─────━═╝
+""")
+                    del Trivia[channe_id]
+                    return
+            
+            Trivia[channe_id]['info']['lvl'] += 1
+            Trivia[channe_id]['info']['вопрос'] = random.choice(list(Quix.text))
+            Trivia[channe_id]['info']['ответ'] = Quix.text[Trivia[channe_id]['info']['вопрос']]
+            await asyncio.sleep(10)
+            await chat()
+
+        async def chat():
+            async def game(interaction: discord.Interaction):
+
+                if Trivia[channe_id]['players'][interaction.user.id]['ход'] == True:
+                    await interaction.response.send_message(f":x: | вы уже сделали свой выбор, ожидайте другого игрока", ephemeral=True)
+                    return
+                
+                if interaction.user.id in Trivia[channe_id]['players']:
+                    pass
+                else:
+                    await interaction.response.send_message(f":x: | к этой игре нельзя больше присоединиться", ephemeral=True)
+                    return
+
+                key = interaction.data['custom_id']
+                Trivia[channe_id]['players'][interaction.user.id]['ответ'] = key
+                Trivia[channe_id]['players'][interaction.user.id]['ход'] = True
+
+                if Trivia[channe_id]['players'][player_1]['ход'] == True and Trivia[channe_id]['players'][player_2]['ход'] == True:
+                    await new_lvl()
+                else:
+                    await chat()
+                
+            buttonA = Button(emoji=f"🇦", style=discord.ButtonStyle.blurple, custom_id="А")
+            buttonB = Button(emoji=f"🇧", style=discord.ButtonStyle.blurple, custom_id="В")
+            buttonC = Button(emoji=f"🇨", style=discord.ButtonStyle.blurple, custom_id="С")
+
+            buttonA.callback = game
+            buttonB.callback = game
+            buttonC.callback = game
+
+            view = View(timeout=180)
+            view.add_item(buttonA)
+            view.add_item(buttonB)
+            view.add_item(buttonC)
+
+            xod1 = "*В ожидании*" if Trivia[channe_id]['players'][player_1]['ход'] == True else " "
+            xod2 = "*В ожидании*" if Trivia[channe_id]['players'][player_2]['ход'] == True else " "
+            
+            
+            await interaction.followup.edit_message(message_id=Trivia[channe_id]['info']['id'], content=f"""
+.                                  Викторина 
+                      ═──────⊱⋆⊰─────═
+                                     уровень {Trivia[channe_id]['info']['lvl']} 
+
+- <@{player_1}>: {Trivia[channe_id]['players'][player_1]['point']} Очков | {xod1}                     
+- <@{player_2}>: {Trivia[channe_id]['players'][player_2]['point']} Очков | {xod2}       
+
+╔═━────═──────⊱⋆⊰─────═─────━═╗                                             
+{Trivia[channe_id]['info']['вопрос']}
+╚═━────═──────⊱⋆⊰─────═─────━═╝
+""", view=view)
+        
+        await asyncio.sleep(5)
+        await chat()
+
+    async def add_player(interaction: discord.Interaction):
+        interaction1 = interaction.message.id
+        member = interaction.user.id
+
+        if channe_id in Trivia:
+            if member in Trivia[channe_id]['players']:
+                await interaction.response.send_message("вы уже вошли в комнату", ephemeral=True)
+                return
+            
+            if len(Trivia[channe_id]['players']) > 1:
+                await interaction.response.send_message("комната занята", ephemeral=True)
+            else:
+                Trivia[channe_id]['players'][member] = {"point": 0, "ход": False, "ответ": None}
+                await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
+                add_pley_button.disabled = True
+                start_button.disabled = False
+                await interaction.followup.edit_message(content=f"Добро пожаловать в викторину.\nПроверьте себя насколько вы умны\n2 Игроков в ожидании", message_id=interaction1, view=view)
+        else:
+            Trivia[channe_id] = {'players': {member: {"point": 0, "ход": False, "ответ": None}}, "info": {"вопрос": None, "ответ": None, "id": None, "lvl": 1}}
+            await interaction.response.send_message("вы создали комнату", ephemeral=True)
+            await interaction.followup.edit_message(content="Добро пожаловать в викторину.\nПроверьте себя насколько вы умны\n1 Игрок в ожидании", message_id=interaction1)
+
+
+    async def info(interaction: discord.Interaction):
+        await interaction.response.send_message("test", ephemeral=True)
+
+    start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
+    button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
+    add_pley_button = Button(emoji=f"➕", style=discord.ButtonStyle.blurple)
+
+    start_button.callback = game_start
+    add_pley_button.callback = add_player
+    button_info.callback = info
+
+    view = View(timeout=180)
+    view.add_item(start_button)
+    view.add_item(add_pley_button)
+    view.add_item(button_info)
+    stop_event = asyncio.Event()
+
+    async def timeout_callback():
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+        except asyncio.TimeoutError:
+            try:
+                del Trivia[channe_id]
+            except:
+                pass
+            
+    self.client.loop.create_task(timeout_callback()) 
+
+    start_button.disabled = True
+    await interaction.response.send_message("Добро пожаловать в викторину.\nПроверьте себя насколько вы умны", view=view)
+
+
+  @app_commands.command(name="угадай_число", description="Игра на угадывание числа, загаданного ботом.")
+  async def Guess_the_Number(self, interaction: discord.Interaction):
+    
+    if interaction.guild is None:
+        await interaction.response.send_message(tekst.DM)
+        return
+    if config.Trivia_Quiz == False:
+        await interaction.response.send_message(tekst.nots)
+        return
+    
+    channe_id = interaction.channel_id
+
+    async def game_start(interaction: discord.Interaction):
+        pass
+
+    async def add_player(interaction: discord.Interaction):
+        interaction1 = interaction.message.id
+        member = interaction.user.id
+
+        if channe_id in Trivia:
+            if member in Trivia[channe_id]['players']:
+                await interaction.response.send_message("вы уже вошли в комнату", ephemeral=True)
+                return
+            
+            if len(Trivia[channe_id]['players']) > 1:
+                await interaction.response.send_message("комната занята", ephemeral=True)
+            else:
+                Trivia[channe_id]['players'][member] = {"point": 0}
+                await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
+                add_pley_button.disabled = True
+                start_button.disabled = False
+                await interaction.followup.edit_message(content=f"3", message_id=interaction1, view=view)
+        else:
+            Trivia[channe_id] = {'players': {member: {"point": 0}}, "info": {"player": None, "id": None}}
+            await interaction.response.send_message("вы создали комнату", ephemeral=True)
+            await interaction.followup.edit_message(content="2", message_id=interaction1)
+
+
+    async def info(interaction: discord.Interaction):
+        await interaction.response.send_message("test", ephemeral=True)
+
+    start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
+    button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
+    add_pley_button = Button(emoji=f"➕", style=discord.ButtonStyle.blurple)
+
+    start_button.callback = game_start
+    add_pley_button.callback = add_player
+    button_info.callback = info
+
+    view = View(timeout=180)
+    view.add_item(start_button)
+    view.add_item(add_pley_button)
+    view.add_item(button_info)
+    stop_event = asyncio.Event()
+
+    async def timeout_callback():
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+        except asyncio.TimeoutError:
+            try:
+                del Trivia[channe_id]
+            except:
+                pass
+            
+    self.client.loop.create_task(timeout_callback()) 
+
+    start_button.disabled = True
+    await interaction.response.send_message("1", view=view)
+
+  @app_commands.command(name="виселица", description="игра, где нужно угадать слово по буквам.")
+  async def Hangman(self, interaction: discord.Interaction):
+
+    if interaction.guild is None:
+        await interaction.response.send_message(tekst.DM)
+        return
+    if config.Trivia_Quiz == False:
+        await interaction.response.send_message(tekst.nots)
+        return
+    
+    channe_id = interaction.channel_id
+
+    async def game_start(interaction: discord.Interaction):
+        pass
+
+    async def add_player(interaction: discord.Interaction):
+        interaction1 = interaction.message.id
+        member = interaction.user.id
+
+        if channe_id in Trivia:
+            if member in Trivia[channe_id]['players']:
+                await interaction.response.send_message("вы уже вошли в комнату", ephemeral=True)
+                return
+            
+            if len(Trivia[channe_id]['players']) > 1:
+                await interaction.response.send_message("комната занята", ephemeral=True)
+            else:
+                Trivia[channe_id]['players'][member] = {"point": 0}
+                await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
+                add_pley_button.disabled = True
+                start_button.disabled = False
+                await interaction.followup.edit_message(content=f"3", message_id=interaction1, view=view)
+        else:
+            Trivia[channe_id] = {'players': {member: {"point": 0}}, "info": {"player": None, "id": None}}
+            await interaction.response.send_message("вы создали комнату", ephemeral=True)
+            await interaction.followup.edit_message(content="2", message_id=interaction1)
+
+
+    async def info(interaction: discord.Interaction):
+        await interaction.response.send_message("test", ephemeral=True)
+
+    start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
+    button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
+    add_pley_button = Button(emoji=f"➕", style=discord.ButtonStyle.blurple)
+
+    start_button.callback = game_start
+    add_pley_button.callback = add_player
+    button_info.callback = info
+
+    view = View(timeout=180)
+    view.add_item(start_button)
+    view.add_item(add_pley_button)
+    view.add_item(button_info)
+    stop_event = asyncio.Event()
+
+    async def timeout_callback():
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+        except asyncio.TimeoutError:
+            try:
+                del Trivia[channe_id]
+            except:
+                pass
+            
+    self.client.loop.create_task(timeout_callback()) 
+
+    start_button.disabled = True
+    await interaction.response.send_message("1", view=view)
 
 async def setup(client:commands.Bot) -> None:
   await client.add_cog(fun(client))
