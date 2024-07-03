@@ -14,6 +14,7 @@ list_mafia = {}
 buskshot = {}
 witch = {}
 Trivia = {}
+Guess_the_Number = {}
 
 class fun(commands.Cog):
   def __init__(self, client: commands.Bot):
@@ -2044,6 +2045,7 @@ class fun(commands.Cog):
     channe_id = interaction.channel_id
 
     async def game_start(interaction: discord.Interaction):
+        stop_event.set()
         await interaction.response.edit_message(view=None)
         await interaction.delete_original_response()
         keys = list(Trivia[channe_id]['players'].keys())
@@ -2056,7 +2058,8 @@ class fun(commands.Cog):
         id = await interaction.followup.send("Ожидание..")
         Trivia[channe_id]['info']['id'] = id.id
 
-        async def new_lvl():
+        async def new_lvl(stop_event1):
+            stop_event1.set()
             await interaction.followup.edit_message(message_id=Trivia[channe_id]['info']['id'], content=f"""
 .                                   Викторина 
                       ═──────⊱⋆⊰─────═
@@ -2124,7 +2127,8 @@ class fun(commands.Cog):
                 Trivia[channe_id]['players'][interaction.user.id]['ход'] = True
 
                 if Trivia[channe_id]['players'][player_1]['ход'] == True and Trivia[channe_id]['players'][player_2]['ход'] == True:
-                    await new_lvl()
+                    await asyncio.sleep(3)
+                    await new_lvl(stop_event1)
                 else:
                     await chat()
                 
@@ -2136,10 +2140,22 @@ class fun(commands.Cog):
             buttonB.callback = game
             buttonC.callback = game
 
-            view = View(timeout=180)
-            view.add_item(buttonA)
-            view.add_item(buttonB)
-            view.add_item(buttonC)
+            view1 = View(timeout=180)
+            view1.add_item(buttonA)
+            view1.add_item(buttonB)
+            view1.add_item(buttonC)
+            stop_event1 = asyncio.Event()
+        
+            async def timeout_callback1():
+                try:
+                    await asyncio.wait_for(stop_event1.wait(), timeout=view1.timeout)
+                except asyncio.TimeoutError:
+                    try:
+                        del Trivia[channe_id]
+                    except:
+                        pass
+                    
+            self.client.loop.create_task(timeout_callback1()) 
 
             xod1 = "*В ожидании*" if Trivia[channe_id]['players'][player_1]['ход'] == True else " "
             xod2 = "*В ожидании*" if Trivia[channe_id]['players'][player_2]['ход'] == True else " "
@@ -2156,7 +2172,7 @@ class fun(commands.Cog):
 ╔═━────═──────⊱⋆⊰─────═─────━═╗                                             
 {Trivia[channe_id]['info']['вопрос']}
 ╚═━────═──────⊱⋆⊰─────═─────━═╝
-""", view=view)
+""", view=view1)
         
         await asyncio.sleep(5)
         await chat()
@@ -2217,73 +2233,162 @@ class fun(commands.Cog):
 
 
   @app_commands.command(name="угадай_число", description="Игра на угадывание числа, загаданного ботом.")
-  async def Guess_the_Number(self, interaction: discord.Interaction):
-    
+  async def guess_the_Number(self, interaction: discord.Interaction):
+
     if interaction.guild is None:
         await interaction.response.send_message(tekst.DM)
         return
-    if config.Trivia_Quiz == False:
+    if config.Guess_the_Number == False:
         await interaction.response.send_message(tekst.nots)
         return
     
-    channe_id = interaction.channel_id
+    target_number = random.randint(1, 100)
+    channe_id = interaction.channel.id
+    member = interaction.user.id
+    
+    if channe_id in Guess_the_Number:
+        await interaction.response.send_message(f":x: | к этой игре нельзя больше присоединиться", ephemeral=True)
+        return
+    else:
+        Guess_the_Number[channe_id] = {member: {"HP": 3}, "info": {"id": None, "1": None, "2": None, "3": None, "out": False}}
 
-    async def game_start(interaction: discord.Interaction):
-        pass
+    await interaction.response.send_message("Загадиваю число..")
+    await asyncio.sleep(5)
+    await interaction.delete_original_response()
+    id = await interaction.followup.send("""
+Всё, а сейчас пожалуйста запомните вот эти цвета:
 
-    async def add_player(interaction: discord.Interaction):
-        interaction1 = interaction.message.id
-        member = interaction.user.id
+- 🟥 (± 15)
+- 🟧 (± 40)
+- 🟨 (± 70)
+- 🟩 (очень далеко)
+""")
+    Guess_the_Number[channe_id]['info']['id'] = id.id
+    await asyncio.sleep(10)
+    
+    async def game():
+        xod1 = "*Пусто*" if Guess_the_Number[channe_id]['info']['1'] is None else Guess_the_Number[channe_id]['info']['1']
+        xod2 = "*Пусто*" if Guess_the_Number[channe_id]['info']['2'] is None else Guess_the_Number[channe_id]['info']['2']
+        xod3 = "*Пусто*" if Guess_the_Number[channe_id]['info']['3'] is None else Guess_the_Number[channe_id]['info']['3']
 
-        if channe_id in Trivia:
-            if member in Trivia[channe_id]['players']:
-                await interaction.response.send_message("вы уже вошли в комнату", ephemeral=True)
-                return
-            
-            if len(Trivia[channe_id]['players']) > 1:
-                await interaction.response.send_message("комната занята", ephemeral=True)
-            else:
-                Trivia[channe_id]['players'][member] = {"point": 0}
-                await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
-                add_pley_button.disabled = True
-                start_button.disabled = False
-                await interaction.followup.edit_message(content=f"3", message_id=interaction1, view=view)
-        else:
-            Trivia[channe_id] = {'players': {member: {"point": 0}}, "info": {"player": None, "id": None}}
-            await interaction.response.send_message("вы создали комнату", ephemeral=True)
-            await interaction.followup.edit_message(content="2", message_id=interaction1)
+        if Guess_the_Number[channe_id]['info']['out'] == True:
+            await interaction.followup.edit_message(message_id=Guess_the_Number[channe_id]['info']['id'], content=f"""
+╔════════-----[угадай число]-
+╠═══╣<@{member}>╠--
+║
+╠══ {xod1}
+║
+╠═ {xod2}
+║
+╠ {xod3}
+║
+╠═══[осталось {Guess_the_Number[channe_id][member]['HP']}]═-
+╚══════════════---
+          🎉 Победа! 🎉
+""")
+            del Guess_the_Number[channe_id]
+            return
+        
+        elif Guess_the_Number[channe_id][member]['HP'] == 0:
+            await interaction.followup.edit_message(message_id=Guess_the_Number[channe_id]['info']['id'], content=f"""
+╔════════-----[угадай число]-
+╠═══╣<@{member}>╠--
+║
+╠══ {xod1}
+║
+╠═ {xod2}
+║
+╠ {xod3}
+║
+╠═══[осталось {Guess_the_Number[channe_id][member]['HP']}]═-
+╚══════════════---
+           ❌ Поражение! ❌
+""")
+            del Guess_the_Number[channe_id]
+            return
 
+        await interaction.followup.edit_message(message_id=Guess_the_Number[channe_id]['info']['id'], content=f"""
+╔════════-----[угадай число]-
+╠═══╣<@{member}>╠--
+║
+╠══ {xod1}
+║
+╠═ {xod2}
+║
+╠ {xod3}
+║
+╠═══[осталось {Guess_the_Number[channe_id][member]['HP']}]═-
+╚══════════════---
+""")
 
-    async def info(interaction: discord.Interaction):
-        await interaction.response.send_message("test", ephemeral=True)
-
-    start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
-    button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
-    add_pley_button = Button(emoji=f"➕", style=discord.ButtonStyle.blurple)
-
-    start_button.callback = game_start
-    add_pley_button.callback = add_player
-    button_info.callback = info
-
-    view = View(timeout=180)
-    view.add_item(start_button)
-    view.add_item(add_pley_button)
-    view.add_item(button_info)
-    stop_event = asyncio.Event()
-
-    async def timeout_callback():
+        def check(message):
+            return message.author.id == member
         try:
-            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+            message = await self.client.wait_for('message', timeout=180.0, check=check)
+            messag = int(message.content)
         except asyncio.TimeoutError:
+            await interaction.followup.send('❌ | Время вышло! Вы не успели угадать число.')
+            del Guess_the_Number[channe_id]
+            return
+        except ValueError:
+            await interaction.followup.send('❌ | Пожалуйста, введите корректное число.', ephemeral=True)
             try:
-                del Trivia[channe_id]
-            except:
-                pass
-            
-    self.client.loop.create_task(timeout_callback()) 
+                await message.delete()
+            except discord.NotFound:
+                pass  
+            await game()
+            return
 
-    start_button.disabled = True
-    await interaction.response.send_message("1", view=view)
+        if messag == target_number:
+            if Guess_the_Number[channe_id][member]['HP'] == 3:
+                Guess_the_Number[channe_id]['info']['1'] = f"{messag}| 🎉"
+            elif Guess_the_Number[channe_id][member]['HP'] == 2:
+                Guess_the_Number[channe_id]['info']['2'] = f"{messag}| 🎉"
+            elif Guess_the_Number[channe_id][member]['HP'] == 1:
+                Guess_the_Number[channe_id]['info']['3'] = f"{messag}| 🎉"
+            Guess_the_Number[channe_id]['info']['out'] = True
+
+        elif abs(messag - target_number) <= 15:
+            if Guess_the_Number[channe_id][member]['HP'] == 3:
+                Guess_the_Number[channe_id]['info']['1'] = f"{messag}| 🟥"
+            elif Guess_the_Number[channe_id][member]['HP'] == 2:
+                Guess_the_Number[channe_id]['info']['2'] = f"{messag}| 🟥"
+            elif Guess_the_Number[channe_id][member]['HP'] == 1:
+                Guess_the_Number[channe_id]['info']['3'] = f"{messag}| 🟥"
+    
+        elif abs(messag - target_number) <= 40:
+            if Guess_the_Number[channe_id][member]['HP'] == 3:
+                Guess_the_Number[channe_id]['info']['1'] = f"{messag}| 🟧"
+            elif Guess_the_Number[channe_id][member]['HP'] == 2:
+                Guess_the_Number[channe_id]['info']['2'] = f"{messag}| 🟧"
+            elif Guess_the_Number[channe_id][member]['HP'] == 1:
+                Guess_the_Number[channe_id]['info']['3'] = f"{messag}| 🟧"
+            
+        elif abs(messag - target_number) <= 70:
+            if Guess_the_Number[channe_id][member]['HP'] == 3:
+                Guess_the_Number[channe_id]['info']['1'] = f"{messag}| 🟨"
+            elif Guess_the_Number[channe_id][member]['HP'] == 2:
+                Guess_the_Number[channe_id]['info']['2'] = f"{messag}| 🟨"
+            elif Guess_the_Number[channe_id][member]['HP'] == 1:
+                Guess_the_Number[channe_id]['info']['3'] = f"{messag}| 🟨"
+           
+        else:
+            if Guess_the_Number[channe_id][member]['HP'] == 3:
+                Guess_the_Number[channe_id]['info']['1'] = f"{messag}| 🟩"
+            elif Guess_the_Number[channe_id][member]['HP'] == 2:
+                Guess_the_Number[channe_id]['info']['2'] = f"{messag}| 🟩"
+            elif Guess_the_Number[channe_id][member]['HP'] == 1:
+                Guess_the_Number[channe_id]['info']['3'] = f"{messag}| 🟩"
+            
+        try:
+            await message.delete()
+        except discord.NotFound:
+            pass  
+        Guess_the_Number[channe_id][member]['HP'] -= 1
+        await asyncio.sleep(3)
+        await game()
+            
+    await game()
 
   @app_commands.command(name="виселица", description="игра, где нужно угадать слово по буквам.")
   async def Hangman(self, interaction: discord.Interaction):
@@ -2291,7 +2396,7 @@ class fun(commands.Cog):
     if interaction.guild is None:
         await interaction.response.send_message(tekst.DM)
         return
-    if config.Trivia_Quiz == False:
+    if config.Hangman == False:
         await interaction.response.send_message(tekst.nots)
         return
     
