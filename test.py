@@ -1,4 +1,5 @@
 import random
+import cogs.text.Hangman_text as text
 
 buskshot = {}
 
@@ -82,7 +83,6 @@ def cartridg():
 #         await don()
 
 # self.client.loop.create_task(timeout_callback()) 
-hello = {"name": {"mo": ["1", "2", "3"]}}
-h = random.randint(0, 3)
-print(h)
+hello = ["А", "б", "в"]
+te = "1234"
 
