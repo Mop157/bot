@@ -8,6 +8,7 @@ import config
 import cogs.text.tekst as tekst
 import cogs.Button.Button as button
 import cogs.text.Trivia_Quix_text as Quix
+import cogs.text.Hangman_text as Hangman
 
 list_rps = {}
 list_mafia = {}
@@ -15,6 +16,7 @@ buskshot = {}
 witch = {}
 Trivia = {}
 Guess_the_Number = {}
+hangman = {}
 
 class fun(commands.Cog):
   def __init__(self, client: commands.Bot):
@@ -122,6 +124,10 @@ class fun(commands.Cog):
         member = interaction.user.id
         stop_event1 = asyncio.Event()
         interaction1 = interaction
+
+        if channel_id in list_rps:
+            await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
+            return
 
         async def timeout1_callback():
             try:
@@ -349,6 +355,10 @@ class fun(commands.Cog):
         return
       
       channel_id = interaction.channel.id
+
+      if channel_id in list_mafia:
+        await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
+        return
 
       async def add_player(interaction: discord.Interaction):
           interaction1 = interaction.message.id
@@ -1148,6 +1158,10 @@ class fun(commands.Cog):
         return
     channe_id = interaction.channel_id
 
+    if channe_id in buskshot:
+        await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
+        return
+
     def cartridg(coin):
         cartridge = ["🔴", "🔵"]
         
@@ -1743,6 +1757,10 @@ class fun(commands.Cog):
         return
     channe_id = interaction.channel_id
 
+    if channe_id in witch:
+        await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
+        return
+
     async def game_start(interaction: discord.Interaction):
         stop_event.set()
         keys = list(witch[channe_id]['players'].keys())
@@ -2044,6 +2062,10 @@ class fun(commands.Cog):
     
     channe_id = interaction.channel_id
 
+    if channe_id in Trivia:
+        await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
+        return
+
     async def game_start(interaction: discord.Interaction):
         stop_event.set()
         await interaction.response.edit_message(view=None)
@@ -2201,7 +2223,7 @@ class fun(commands.Cog):
 
 
     async def info(interaction: discord.Interaction):
-        await interaction.response.send_message("test", ephemeral=True)
+        await interaction.response.send_message(tekst.trivia, ephemeral=True)
 
     start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
     button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
@@ -2247,7 +2269,7 @@ class fun(commands.Cog):
     member = interaction.user.id
     
     if channe_id in Guess_the_Number:
-        await interaction.response.send_message(f":x: | к этой игре нельзя больше присоединиться", ephemeral=True)
+        await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
         return
     else:
         Guess_the_Number[channe_id] = {member: {"HP": 3}, "info": {"id": None, "1": None, "2": None, "3": None, "out": False}}
@@ -2402,30 +2424,235 @@ class fun(commands.Cog):
     
     channe_id = interaction.channel_id
 
+    if channe_id in hangman:
+        await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
+        return
+
     async def game_start(interaction: discord.Interaction):
-        pass
+        stop_event.set()
+
+        await interaction.response.edit_message(content="Загадиваю слово..", view=None)
+        await asyncio.sleep(5)
+
+        await interaction.delete_original_response()
+        id = await interaction.followup.send("Загадиваю слово...")
+        hangman[channe_id]['info']['id'] = id.id
+
+        keys = list(hangman[channe_id]['players'].keys())
+        player_1 = keys[0]
+        player_2 = keys[1]
+
+        text = random.choice(Hangman.text)
+
+        for texts in text:
+            hangman[channe_id]['info']['list_all'].append(texts)
+            if hangman[channe_id]['text']['1'] is None:
+                hangman[channe_id]['text']['1'] = texts
+            else:
+                if hangman[channe_id]['text']['2'] is None:
+                    hangman[channe_id]['text']['2'] = texts
+                else:
+                    if hangman[channe_id]['text']['3'] is None:
+                        hangman[channe_id]['text']['3'] = texts
+                    else:
+                        if hangman[channe_id]['text']['4'] is None:
+                            hangman[channe_id]['text']['4'] = texts
+                        else:
+                            if hangman[channe_id]['text']['5'] is None:
+                                hangman[channe_id]['text']['5'] = texts
+                            else:
+                                if hangman[channe_id]['text']['6'] is None:
+                                    hangman[channe_id]['text']['6'] = texts
+                                else:
+                                    if hangman[channe_id]['text']['7'] is None:
+                                        hangman[channe_id]['text']['7'] = texts
+                                    else:
+                                        if hangman[channe_id]['text']['8'] is None:
+                                            hangman[channe_id]['text']['8'] = texts
+        
+        for deat in list(hangman[channe_id]['text']):
+            if hangman[channe_id]['text'][deat] is None:
+                del hangman[channe_id]['text'][deat]
+
+        hangman[channe_id]['info']['player'] = player_1
+        
+        async def chat():
+            clovo = ""
+
+            for clovos in list(hangman[channe_id]['text']):
+                if hangman[channe_id]['text'][clovos] in hangman[channe_id]['info']['list']:
+                    clovo += f"⟮{hangman[channe_id]['text'][clovos]}⟯"
+                else:
+                    clovo += "⟮◾⟯"
+
+            if "◾" not in clovo or len(hangman[channe_id]['players']) == 1:
+                if len(hangman[channe_id]['players']) == 1:
+                    users = f"<@{hangman[channe_id]['info']['player']}>"
+                else:
+                    user = None
+
+                    if hangman[channe_id]['players'][player_1]['point'] == hangman[channe_id]['players'][player_2]['point']:
+                        user = "ничья"
+                    elif hangman[channe_id]['players'][player_1]['point'] > hangman[channe_id]['players'][player_2]['point']:
+                        user = player_1
+                    elif hangman[channe_id]['players'][player_2]['point'] > hangman[channe_id]['players'][player_1]['point']:
+                        user = player_2
+
+                    users = "ничья" if user == "ничья" else f"<@{user}>]-({hangman[channe_id]['players'][user]['point']})"
+
+                await interaction.followup.edit_message(message_id=hangman[channe_id]['info']['id'], content=f"""
+.        | Угадай слово |
+            ༼ (КОНЕЦ) ༽
+︿︿︿︿︿︿︿︿︿︿︿
+᚛⦒⦑⦒⦒⦒⦒⦑⦒⦑⦒⦑⦑⦑⦑⦒⦑᚜>-----=⸎
+|
+⧽ {clovo}
+|
+᚛⦒⦑⦒⦒⦒⦒⦑⦒⦑⦒⦑⦑⦑⦑⦒⦑᚜>-----=⸎
+﹀﹀﹀﹀﹀﹀﹀﹀﹀﹀﹀
+≠==========================≠
+Победитель | {users}
+≠==========================≠
+""")
+                del hangman[channe_id]
+                return
+
+            await interaction.followup.edit_message(message_id=hangman[channe_id]['info']['id'], content=f"""
+.           | Угадай слово |
+            ༼ (<@{hangman[channe_id]['info']['player']}>) ༽
+︿︿︿︿︿︿︿︿︿︿︿
+᚛⦒⦑⦒⦒⦒⦒⦑⦒⦑⦒⦑⦑⦑⦑⦒⦑᚜>-----=⸎
+|
+⧽ {clovo}
+|
+᚛⦒⦑⦒⦒⦒⦒⦑⦒⦑⦒⦑⦑⦑⦑⦒⦑᚜>-----=⸎
+﹀﹀﹀﹀﹀﹀﹀﹀﹀﹀﹀
+≠==========================≠
+<@{player_1}>]-({hangman[channe_id]['players'][player_1]['point']})
+≠==========================≠
+<@{player_2}>]-({hangman[channe_id]['players'][player_2]['point']})
+≠==========================≠
+""")
+            
+            async def mess():
+                def check(message):
+                    return message.author.id == hangman[channe_id]['info']['player']
+                try:
+                    message = await self.client.wait_for('message', timeout=180.0, check=check)
+                    if len(message.content) == 1:
+                        try:
+                            await message.delete()
+                        except discord.NotFound:
+                            pass
+                    else:
+                        if len(message.content) > 2:
+                            if message.content.isupper() == text:
+                                for tex in text:
+                                    hangman[channe_id]['info']['list'].append(tex)
+                                if hangman[channe_id]['info']['player'] == player_1:
+                                    del hangman[channe_id]['players'][player_2]
+                                elif hangman[channe_id]['info']['player'] == player_2:
+                                    del hangman[channe_id]['players'][player_1]
+                                try:
+                                    await message.delete()
+                                except discord.NotFound:
+                                    pass
+                                await chat()
+                                return
+                            
+                            else:
+                                if (hangman[channe_id]['players'][hangman[channe_id]['info']['player']]['point'] - 3) >= 0:
+                                    hangman[channe_id]['players'][hangman[channe_id]['info']['player']]['point'] -= 3
+                                    awa = await interaction.followup.send('❌ | Не угадали, у вас - 3 очка.')
+                                    try:
+                                        await message.delete()
+                                    except discord.NotFound:
+                                        pass
+                                    await asyncio.sleep(5)
+                                    await interaction.followup.delete_message(awa.id)
+                                else:
+                                    for tex in text:
+                                        hangman[channe_id]['info']['list'].append(tex)
+                                    del hangman[channe_id]['players'][hangman[channe_id]['info']['player']]
+                                    if hangman[channe_id]['info']['player'] == player_1:
+                                        hangman[channe_id]['info']['player'] = player_2
+                                    elif hangman[channe_id]['info']['player'] == player_2:
+                                        hangman[channe_id]['info']['player'] = player_1
+                                    try:
+                                        await message.delete()
+                                    except discord.NotFound:
+                                        pass
+                                    awa = await interaction.followup.send('❌ | ответ оказался отрицательный, у вас оказалось недостаточно недостаточно очков для снятия и поэтому вы покидаете игру.')
+                                    await asyncio.sleep(5)
+                                    await interaction.followup.delete_message(awa.id)
+                                    await chat()
+                                    return
+                        else:
+                            try:
+                                await message.delete()
+                            except discord.NotFound:
+                                pass  
+                            awa = await interaction.followup.send('❌ | Пожалуйста, введите корректную букву.')
+                            await asyncio.sleep(3)
+                            await interaction.followup.delete_message(awa.id)
+                            await mess()
+                            return
+
+                    
+
+                except asyncio.TimeoutError:
+                    await interaction.followup.send('❌ | Время вышло! Вы не успели угадать слово.')
+                    del hangman[channe_id]
+                    return
+                
+                messag = message.content
+
+                if messag.isupper():
+                    messag = messag.lower()
+                    
+
+                for m in hangman[channe_id]['info']['list_all']:
+                    if messag == m:
+                        hangman[channe_id]['players'][hangman[channe_id]['info']['player']]['point'] += 1
+                        if messag in hangman[channe_id]['info']['list']:
+                            pass
+                        else:
+                            hangman[channe_id]['info']['list'].append(messag)
+
+                if messag in hangman[channe_id]['info']['list_all']:
+                    await chat()
+                else:
+                    if hangman[channe_id]['info']['player'] == player_1:
+                        hangman[channe_id]['info']['player'] = player_2
+                    elif hangman[channe_id]['info']['player'] == player_2:
+                        hangman[channe_id]['info']['player'] = player_1
+                    await chat()
+
+            await mess()
+
+        await chat()
 
     async def add_player(interaction: discord.Interaction):
         interaction1 = interaction.message.id
         member = interaction.user.id
 
-        if channe_id in Trivia:
-            if member in Trivia[channe_id]['players']:
+        if channe_id in hangman:
+            if member in hangman[channe_id]['players']:
                 await interaction.response.send_message("вы уже вошли в комнату", ephemeral=True)
                 return
             
-            if len(Trivia[channe_id]['players']) > 1:
+            if len(hangman[channe_id]['players']) > 1:
                 await interaction.response.send_message("комната занята", ephemeral=True)
             else:
-                Trivia[channe_id]['players'][member] = {"point": 0}
+                hangman[channe_id]['players'][member] = {"point": 0}
                 await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
                 add_pley_button.disabled = True
                 start_button.disabled = False
-                await interaction.followup.edit_message(content=f"3", message_id=interaction1, view=view)
+                await interaction.followup.edit_message(content=f"Добро пожаловать в игру **угадай слово**\nВ этой игре цель легка - угадать слово!\n2 Игроков в ожидании", message_id=interaction1, view=view)
         else:
-            Trivia[channe_id] = {'players': {member: {"point": 0}}, "info": {"player": None, "id": None}}
+            hangman[channe_id] = {'players': {member: {"point": 0}}, "info": {"player": None, "id": None, "list": [], "list_all": []}, "text": {"1": None, "2": None, "3": None, "4": None, "5": None, "6": None, "7": None, "8": None }}
             await interaction.response.send_message("вы создали комнату", ephemeral=True)
-            await interaction.followup.edit_message(content="2", message_id=interaction1)
+            await interaction.followup.edit_message(content="Добро пожаловать в игру **угадай слово**\nВ этой игре цель легка - угадать слово!\n1 Игрок в ожидании", message_id=interaction1)
 
 
     async def info(interaction: discord.Interaction):
@@ -2450,14 +2677,14 @@ class fun(commands.Cog):
             await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
         except asyncio.TimeoutError:
             try:
-                del Trivia[channe_id]
+                del hangman[channe_id]
             except:
                 pass
             
     self.client.loop.create_task(timeout_callback()) 
 
     start_button.disabled = True
-    await interaction.response.send_message("1", view=view)
+    await interaction.response.send_message("Добро пожаловать в игру **угадай слово**\nВ этой игре цель легка - угадать слово!", view=view)
 
 async def setup(client:commands.Bot) -> None:
   await client.add_cog(fun(client))
