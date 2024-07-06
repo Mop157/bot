@@ -59,30 +59,33 @@ class moderator(commands.Cog):
         await ctx.send(f"Вы отправили: {message.content}")
         print(message.content)
 
-  @commands.command(name="help")
-  async def help(self, ctx: commands.Context):
-      await ctx.send(
+  @app_commands.command(name="help", description="help")
+  async def help(self, interaction: discord.Interaction):
+      await interaction.response.send_message(
       content=f"""```ini
 список команд | Префикс: {self.prefix}
 
-[{self.prefix}rps] камень, ножницы, бумага.
-[{self.prefix}slot] игровый автомат.
-[{self.prefix}8ball] вольшебная восьмерка.
-[{self.prefix}mafia] мафия в дискорде.
-[{self.prefix}Buckshot roulette] русская рулетка.
-[{self.prefix}ведьма] карточная игра ведьма.
-[{self.prefix}викторина] Вопросы викторины на различные темы.
-[{self.prefix}угадай_число] Игра на угадывание числа, загаданного ботом.
-[{self.prefix}виселица] игра, где нужно угадать слово по буквам.
+[{self.prefix}rps] Камень, ножницы, бумага.
+[{self.prefix}slot] Игровый автомат.
+[{self.prefix}8ball] Вольшебная восьмерка.
+[{self.prefix}mafia] Мафия в дискорде.
+[{self.prefix}Buckshot roulette] Русская рулетка.
+[{self.prefix}ведьма] Карточная игра ведьма.
+[{self.prefix}викторина] Вопросы викторины.
+[{self.prefix}угадай_число] Игра на угадывание числа.
+[{self.prefix}виселица] Угадать слово по буквам.
+[{self.prefix}truth_or_lie] Правда или ложь.
+[{self.prefix}anagrams] Расшифровка слова.
+[{self.prefix}role_playing] Ролевые диалоги.
 
 [{self.prefix}info] информация об боте
 ```""")
       
-  @commands.command(name="info")
-  async def info(self, ctx: commands.Context):     
+  @app_commands.command(name="info", description="info")
+  async def info(self, interaction: discord.Interaction):     
       async def help(interaction: discord.Interaction):
          await interaction.response.send_message("""
-Если у вас появились вопросы по поводу меня, или вы обнаружили баг, заходите на мой [сервер поддержки](https://discord.gg/2exCUfVv8z). Там вы найдете все новости обо мне, а также сможете получить помощь, если мой автор занят и не может ответить сразу.
+Если у вас появились вопросы по поводу меня, или вы обнаружили баг, заходите на мой [сервер поддержки](https://discord.gg/2exCUfVv8z). Там вы найдете все новости обо мне, а также сможете получить помощь, если мой автор занят и не может ответить сразу.\n сервер - https://discord.gg/2exCUfVv8z 
 """, ephemeral=True)
 
       async def info(interaction: discord.Interaction):
@@ -111,16 +114,16 @@ class moderator(commands.Cog):
       synceds = len(synced)
       all_command = self.client.commands
       all_commands = len(all_command)
-      await ctx.send(f"""
+      await interaction.response.send_message(f"""
 Привет! Я бот **{self.client.user.name}** и я создан для игр на этом сервере.
 Мои функции включают игровые команды, чтобы поддерживать развлечения для участников.
 Вот немного информации обо мне:
 ```ini
 Автор: mop157
 Версия: {config.versia}
-Количество серверов: {len(self.client.guilds)}
-Количество всех игр: {synceds}
-Количество всех команд: {all_commands}
+Количество серверов: {len(self.client.guilds) - 4}
+Количество всех игр: {synceds - 2}
+Количество всех команд: {all_commands - 1}
 ```
 Спасибо за использование меня в играх! Если у вас есть вопросы или нужна помощь, обратитесь к моему автору.""", view=view)
 
