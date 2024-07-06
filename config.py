@@ -17,3 +17,6 @@ witch = True
 Trivia_Quiz = True
 Guess_the_Number = True
 Hangman = True
+truth_or_lie = False
+anagrams = True
+role_playing = False
