@@ -11,6 +11,7 @@ import cogs.text.Trivia_Quix_text as Quix
 import cogs.text.Hangman_text as Hangman
 import cogs.text.truth_or_lie_text as Truth_or_lie
 import cogs.text.Anagrams as Anagrams
+import cogs.text.Role_playing_text as Role_play
 
 list_rps = {}
 list_mafia = {}
@@ -346,7 +347,7 @@ class fun(commands.Cog):
 
 
 #######################################################
-    ########## сапер ####################
+    ########## мафия ####################
 #######################################################
 
   @app_commands.command(name="mafia", description="Мафия через Discord Бота")
@@ -394,6 +395,12 @@ class fun(commands.Cog):
           start_button.disabled = True
           await interaction.response.edit_message(view=view)
           keys = list(list_mafia[channel_id]['players'].keys())
+
+          if interaction.user.id == keys[0]:
+                pass
+          else:
+                await interaction.response.send_message("Начать игру может только создатель комнаты", ephemeral=True)
+                return
           player_1 = keys[0] if len(keys) > 0 else None
           player_2 = keys[1] if len(keys) > 1 else None
           player_3 = keys[2] if len(keys) > 2 else None
@@ -1152,6 +1159,8 @@ class fun(commands.Cog):
       await interaction.response.send_message(tekst.mafia_game, view=view)
 
 #######################################################
+    ########## блэк шот рулет ####################
+#######################################################
 
   @app_commands.command(name="buckshot_roulette", description="Buckshot roulette")
   async def Buckshot_roulette(self, interaction: discord.Interaction):
@@ -1189,6 +1198,13 @@ class fun(commands.Cog):
 
     async def game_start(interaction: discord.Interaction):
         stop_event.set()
+        keys55 = list(buskshot[channe_id]['players'].keys())
+
+        if interaction.user.id == keys55[0]:
+            pass
+        else:
+            await interaction.response.send_message("Начать игру может только создатель комнаты", ephemeral=True)
+            return
         
         player_1 = None
         player_2 = None
@@ -1750,7 +1766,9 @@ class fun(commands.Cog):
     start_button.disabled = True
     await interaction.response.send_message("Добро пожаловать в Buckshot Roulette\nсоздайте комнату, и после выберите режим игры и наслаждайтесь игрой", view=view)
 
-###########################################################
+#######################################################
+    ########## ведьма ####################
+#######################################################
 
   @app_commands.command(name="ведьма", description="Карточная игра Ведьма")
   async def witch(self, interaction: discord.Interaction):
@@ -1769,6 +1787,12 @@ class fun(commands.Cog):
     async def game_start(interaction: discord.Interaction):
         stop_event.set()
         keys = list(witch[channe_id]['players'].keys())
+
+        if interaction.user.id == keys[0]:
+            pass
+        else:
+            await interaction.response.send_message("Начать игру может только создатель комнаты", ephemeral=True)
+            return
         player_1 = keys[0] if len(keys) > 0 else None
         player_2 = keys[1] if len(keys) > 1 else None
         player_3 = keys[2] if len(keys) > 2 else None
@@ -2055,6 +2079,10 @@ class fun(commands.Cog):
     start_button.disabled = True
     await interaction.response.send_message("Добро пожаловать в 'Ведьма'\nЭто много пользовательская карточная игра в котом вам предстоит НЕ остаться Ведьмой", view=view)
 
+#######################################################
+    ########## викторина ####################
+#######################################################
+
   @app_commands.command(name="викторина", description="Вопросы викторины на различные темы.")
   async def Trivia_Quiz(self, interaction: discord.Interaction):
 
@@ -2073,9 +2101,16 @@ class fun(commands.Cog):
 
     async def game_start(interaction: discord.Interaction):
         stop_event.set()
+        keys = list(Trivia[channe_id]['players'].keys())
+
+        if interaction.user.id == keys[0]:
+            pass
+        else:
+            await interaction.response.send_message("Начать игру может только создатель комнаты", ephemeral=True)
+            return
         await interaction.response.edit_message(view=None)
         await interaction.delete_original_response()
-        keys = list(Trivia[channe_id]['players'].keys())
+        
         player_1 = keys[0]
         player_2 = keys[1]
 
@@ -2086,7 +2121,6 @@ class fun(commands.Cog):
         Trivia[channe_id]['info']['id'] = id.id
 
         async def new_lvl(stop_event1):
-            stop_event1.set()
             await interaction.followup.edit_message(message_id=Trivia[channe_id]['info']['id'], content=f"""
 .                                   Викторина 
                       ═──────⊱⋆⊰─────═
@@ -2106,8 +2140,8 @@ class fun(commands.Cog):
                 if str(Trivia[channe_id]['players'][game_out]['ответ']) == str(Trivia[channe_id]['info']['ответ']):
                     Trivia[channe_id]['players'][game_out]['point'] += 1
 
-                if Trivia[channe_id]['players'][player_1]['point'] == 3 and Trivia[channe_id]['players'][player_2]['point'] == 3:
-                    await asyncio.sleep(6)
+                if Trivia[channe_id]['players'][player_1]['point'] == 5 and Trivia[channe_id]['players'][player_2]['point'] == 5:
+                    await asyncio.sleep(5)
                     await interaction.followup.edit_message(message_id=Trivia[channe_id]['info']['id'], content=f"""
 .                                 Викторина 
             
@@ -2118,8 +2152,8 @@ class fun(commands.Cog):
                     del Trivia[channe_id]
                     return
 
-                if Trivia[channe_id]['players'][game_out]['point'] == 3:
-                    await asyncio.sleep(6)
+                if Trivia[channe_id]['players'][game_out]['point'] == 5:
+                    await asyncio.sleep(5)
                     await interaction.followup.edit_message(message_id=Trivia[channe_id]['info']['id'], content=f"""
 .                                 Викторина 
             
@@ -2133,11 +2167,12 @@ class fun(commands.Cog):
             Trivia[channe_id]['info']['lvl'] += 1
             Trivia[channe_id]['info']['вопрос'] = random.choice(list(Quix.text))
             Trivia[channe_id]['info']['ответ'] = Quix.text[Trivia[channe_id]['info']['вопрос']]
-            await asyncio.sleep(10)
+            await asyncio.sleep(7)
             await chat()
 
         async def chat():
             async def game(interaction: discord.Interaction):
+                stop_event1.set()
 
                 if Trivia[channe_id]['players'][interaction.user.id]['ход'] == True:
                     await interaction.response.send_message(f":x: | вы уже сделали свой выбор, ожидайте другого игрока", ephemeral=True)
@@ -2154,8 +2189,8 @@ class fun(commands.Cog):
                 Trivia[channe_id]['players'][interaction.user.id]['ход'] = True
 
                 if Trivia[channe_id]['players'][player_1]['ход'] == True and Trivia[channe_id]['players'][player_2]['ход'] == True:
-                    await asyncio.sleep(3)
-                    await new_lvl(stop_event1)
+                    await asyncio.sleep(2)
+                    await new_lvl()
                 else:
                     await chat()
                 
@@ -2258,6 +2293,9 @@ class fun(commands.Cog):
     start_button.disabled = True
     await interaction.response.send_message("Добро пожаловать в викторину.\nПроверьте себя насколько вы умны", view=view)
 
+#######################################################
+    ########## угадай число ####################
+#######################################################
 
   @app_commands.command(name="угадай_число", description="Игра на угадывание числа, загаданного ботом.")
   async def guess_the_Number(self, interaction: discord.Interaction):
@@ -2417,6 +2455,10 @@ class fun(commands.Cog):
             
     await game()
 
+#######################################################
+    ########## виселица ####################
+#######################################################
+
   @app_commands.command(name="виселица", description="игра, где нужно угадать слово по буквам.")
   async def Hangman(self, interaction: discord.Interaction):
 
@@ -2435,6 +2477,13 @@ class fun(commands.Cog):
 
     async def game_start(interaction: discord.Interaction):
         stop_event.set()
+        keys = list(hangman[channe_id]['players'].keys())
+
+        if interaction.user.id == keys[0]:
+            pass
+        else:
+            await interaction.response.send_message("Начать игру может только создатель комнаты", ephemeral=True)
+            return
 
         await interaction.response.edit_message(content="Загадиваю слово..", view=None)
         await asyncio.sleep(5)
@@ -2443,7 +2492,6 @@ class fun(commands.Cog):
         id = await interaction.followup.send("Загадиваю слово...")
         hangman[channe_id]['info']['id'] = id.id
 
-        keys = list(hangman[channe_id]['players'].keys())
         player_1 = keys[0]
         player_2 = keys[1]
 
@@ -2662,7 +2710,7 @@ class fun(commands.Cog):
 
 
     async def info(interaction: discord.Interaction):
-        await interaction.response.send_message("test", ephemeral=True)
+        await interaction.response.send_message(tekst.Hangman, ephemeral=True)
 
     start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
     button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
@@ -2692,6 +2740,10 @@ class fun(commands.Cog):
     start_button.disabled = True
     await interaction.response.send_message("Добро пожаловать в игру **угадай слово**\nВ этой игре цель легка - угадать слово!", view=view)
 
+#######################################################
+    ########## правда или ложь ####################
+#######################################################
+
   @app_commands.command(name="truth_or_lie", description="truth_or_lie")
   async def Truth_or_lie(self, interaction: discord.Interaction):
 
@@ -2710,9 +2762,16 @@ class fun(commands.Cog):
 
     async def game_start(interaction: discord.Interaction):
         stop_event.set()
+        keys = list(truth_or_lie[channe_id]['players'].keys())
+
+        if interaction.user.id == keys[0]:
+            pass
+        else:
+            await interaction.response.send_message("Начать игру может только создатель комнаты", ephemeral=True)
+            return
         await interaction.response.edit_message(view=None)
         await interaction.delete_original_response()
-        keys = list(truth_or_lie[channe_id]['players'].keys())
+    
         player_1 = keys[0]
         player_2 = keys[1]
 
@@ -2722,18 +2781,17 @@ class fun(commands.Cog):
         id = await interaction.followup.send("Ожидание..")
         truth_or_lie[channe_id]['info']['id'] = id.id
 
-        async def new_lvl(stop_event1):
-            stop_event1.set()
+        async def new_lvl():
             await interaction.followup.edit_message(message_id=truth_or_lie[channe_id]['info']['id'], content=f"""
-.                                   Викторина 
+.                                 Правда/Ложь 
                       ═──────⊱⋆⊰─────═
                                       уровень {truth_or_lie[channe_id]['info']['lvl']} 
 
-- <@{player_1}>: {truth_or_lie[channe_id]['players'][player_1]['point']} | ответ: {truth_or_lie[channe_id]['players'][player_1]['ответ']}                    
-- <@{player_2}>: {truth_or_lie[channe_id]['players'][player_2]['point']} | ответ: {truth_or_lie[channe_id]['players'][player_2]['ответ']}      
+- <@{player_1}>: {truth_or_lie[channe_id]['players'][player_1]['point']} | ответ: {"Правда" if truth_or_lie[channe_id]['players'][player_1]['ответ'] == "А" else "Ложь"}                    
+- <@{player_2}>: {truth_or_lie[channe_id]['players'][player_2]['point']} | ответ: {"Правда" if truth_or_lie[channe_id]['players'][player_2]['ответ'] == "А" else "Ложь"}      
 
 ╔═━────═──────⊱⋆⊰─────═─────━═╗
-                        Правильный ответ - {truth_or_lie[channe_id]['info']['ответ']}
+                        Правильный ответ - {"Правда" if truth_or_lie[channe_id]['info']['ответ'] == "А" else "Ложь"}
 ╚═━────═──────⊱⋆⊰─────═─────━═╝
 всем кто ответил правильно получают +1
 """, view=None)
@@ -2743,10 +2801,10 @@ class fun(commands.Cog):
                 if str(truth_or_lie[channe_id]['players'][game_out]['ответ']) == str(truth_or_lie[channe_id]['info']['ответ']):
                     truth_or_lie[channe_id]['players'][game_out]['point'] += 1
 
-                if truth_or_lie[channe_id]['players'][player_1]['point'] == 3 and truth_or_lie[channe_id]['players'][player_2]['point'] == 3:
-                    await asyncio.sleep(6)
+                if truth_or_lie[channe_id]['players'][player_1]['point'] == 5 and truth_or_lie[channe_id]['players'][player_2]['point'] == 5:
+                    await asyncio.sleep(5)
                     await interaction.followup.edit_message(message_id=truth_or_lie[channe_id]['info']['id'], content=f"""
-.                                 Викторина 
+.                                 Правда/Ложь 
             
 ╔═━────═──────⊱⋆⊰─────═─────━═╗
                     победитель - ничья
@@ -2755,10 +2813,10 @@ class fun(commands.Cog):
                     del truth_or_lie[channe_id]
                     return
 
-                if truth_or_lie[channe_id]['players'][game_out]['point'] == 3:
-                    await asyncio.sleep(6)
+                if truth_or_lie[channe_id]['players'][game_out]['point'] == 5:
+                    await asyncio.sleep(5)
                     await interaction.followup.edit_message(message_id=truth_or_lie[channe_id]['info']['id'], content=f"""
-.                                 Викторина 
+.                               Правда/Ложь 
             
 ╔═━────═──────⊱⋆⊰─────═─────━═╗
                     победитель - <@{game_out}>
@@ -2770,11 +2828,12 @@ class fun(commands.Cog):
             truth_or_lie[channe_id]['info']['lvl'] += 1
             truth_or_lie[channe_id]['info']['вопрос'] = random.choice(list(Truth_or_lie.text))
             truth_or_lie[channe_id]['info']['ответ'] = Truth_or_lie.text[truth_or_lie[channe_id]['info']['вопрос']]
-            await asyncio.sleep(10)
+            await asyncio.sleep(7)
             await chat()
 
         async def chat():
             async def game(interaction: discord.Interaction):
+                stop_event1.set()
 
                 if truth_or_lie[channe_id]['players'][interaction.user.id]['ход'] == True:
                     await interaction.response.send_message(f":x: | вы уже сделали свой выбор, ожидайте другого игрока", ephemeral=True)
@@ -2792,12 +2851,12 @@ class fun(commands.Cog):
 
                 if truth_or_lie[channe_id]['players'][player_1]['ход'] == True and truth_or_lie[channe_id]['players'][player_2]['ход'] == True:
                     await asyncio.sleep(3)
-                    await new_lvl(stop_event1)
+                    await new_lvl()
                 else:
                     await chat()
                 
-            buttonA = Button(emoji=f"🇦", style=discord.ButtonStyle.blurple, custom_id="А")
-            buttonB = Button(emoji=f"🇧", style=discord.ButtonStyle.blurple, custom_id="В")
+            buttonA = Button(label=f"Правда", style=discord.ButtonStyle.green, custom_id="А")
+            buttonB = Button(label=f"Ложь", style=discord.ButtonStyle.red, custom_id="Б")
 
             buttonA.callback = game
             buttonB.callback = game
@@ -2823,7 +2882,7 @@ class fun(commands.Cog):
             
             
             await interaction.followup.edit_message(message_id=truth_or_lie[channe_id]['info']['id'], content=f"""
-.                                  Викторина 
+.                                Правда/Ложь
                       ═──────⊱⋆⊰─────═
                                      уровень {truth_or_lie[channe_id]['info']['lvl']} 
 
@@ -2854,16 +2913,16 @@ class fun(commands.Cog):
                 await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
                 add_pley_button.disabled = True
                 start_button.disabled = False
-                await interaction.followup.edit_message(content=f"Добро пожаловать в викторину.\nПроверьте себя насколько вы умны\n2 Игроков в ожидании", message_id=interaction1, view=view)
+                await interaction.followup.edit_message(content=f"Кто-то говорит правда, а другие ложь\nА что окажется правдой, давайте узнаем вместе?\n2 Игроков в ожидании", message_id=interaction1, view=view)
         else:
             truth_or_lie[channe_id] = {'players': {member: {"point": 0, "ход": False, "ответ": None}}, "info": {"вопрос": None, "ответ": None, "id": None, "lvl": 1}}
             await interaction.response.send_message("вы создали комнату", ephemeral=True)
-            await interaction.followup.edit_message(content="Добро пожаловать в викторину.\nПроверьте себя насколько вы умны\n1 Игрок в ожидании", message_id=interaction1)
+            await interaction.followup.edit_message(content="Кто-то говорит правда, а другие ложь\nА что окажется правдой, давайте узнаем вместе?\n1 Игрок в ожидании", message_id=interaction1)
 
 
 
     async def info(interaction: discord.Interaction):
-        await interaction.response.send_message("test", ephemeral=True)
+        await interaction.response.send_message(tekst.Truth_or_lie, ephemeral=True)
 
     start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
     button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
@@ -2891,7 +2950,11 @@ class fun(commands.Cog):
     self.client.loop.create_task(timeout_callback()) 
 
     start_button.disabled = True
-    await interaction.response.send_message("1", view=view)
+    await interaction.response.send_message("Кто-то говорит правда, а другие ложь\nА что окажется правдой, давайте узнаем вместе?", view=view)
+
+#######################################################
+    ########## анаграма ####################
+#######################################################
 
   @app_commands.command(name="anagrams", description="Anagrams")
   async def Anagrams(self, interaction: discord.Interaction):
@@ -2911,6 +2974,13 @@ class fun(commands.Cog):
 
     async def game_start(interaction: discord.Interaction):
         stop_event.set()
+        keys = list(anagrams[channe_id]['players'].keys())
+
+        if interaction.user.id == keys[0]:
+            pass
+        else:
+            await interaction.response.send_message("Начать игру может только создатель комнаты", ephemeral=True)
+            return
         
         await interaction.response.edit_message(content="Загадиваю слово...", view=None)
         await asyncio.sleep(5)
@@ -2919,7 +2989,6 @@ class fun(commands.Cog):
         id = await interaction.followup.send("Загадиваю слово..")
         anagrams[channe_id]['info']['id'] = id.id
 
-        keys = list(anagrams[channe_id]['players'].keys())
         player_1 = keys[0]
         player_2 = keys[1]
         anagrams[channe_id]['info']['player'] = player_1
@@ -3038,15 +3107,15 @@ class fun(commands.Cog):
                 await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
                 add_pley_button.disabled = True
                 start_button.disabled = False
-                await interaction.followup.edit_message(content=f"3\n2 Игроков в ожидании", message_id=interaction1, view=view)
+                await interaction.followup.edit_message(content=f"Захотели расшифровать слова с другом?\nТогда создайте команду и начните игру!\n2 Игроков в ожидании", message_id=interaction1, view=view)
         else:
             anagrams[channe_id] = {'players': {member: {"point": 5}}, "info": {"player": None, "id": None, "list": [], "clovo": ""}}
             await interaction.response.send_message("вы создали комнату", ephemeral=True)
-            await interaction.followup.edit_message(content="2\n1 Игрок в ожидании", message_id=interaction1)
+            await interaction.followup.edit_message(content="Захотели расшифровать слова с другом?\nТогда создайте команду и начните игру!\n1 Игрок в ожидании", message_id=interaction1)
 
 
     async def info(interaction: discord.Interaction):
-        await interaction.response.send_message("test", ephemeral=True)
+        await interaction.response.send_message(tekst.anagrams, ephemeral=True)
 
     start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
     button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
@@ -3074,7 +3143,11 @@ class fun(commands.Cog):
     self.client.loop.create_task(timeout_callback()) 
 
     start_button.disabled = True
-    await interaction.response.send_message("1", view=view)
+    await interaction.response.send_message("Захотели расшифровать слова с другом?\nТогда создайте команду и начните игру!", view=view)
+
+#######################################################
+    ########## ролевые диалоги ####################
+#######################################################
 
   @app_commands.command(name="role_playing", description="Role-playing")
   async def Role_playing(self, interaction: discord.Interaction):
@@ -3094,21 +3167,76 @@ class fun(commands.Cog):
 
     async def game_start(interaction: discord.Interaction):
         stop_event.set()
+        keys = list(role_playing[channe_id]['players'].keys())
+
+        if interaction.user.id == keys[0]:
+            pass
+        else:
+            await interaction.response.send_message("Начать игру может только создатель комнаты", ephemeral=True)
+            return
         
-        await interaction.response.edit_message(content="Загадиваю слово..", view=None)
+        await interaction.response.edit_message(content="Ожидание..", view=None)
         await asyncio.sleep(5)
 
-        await interaction.delete_original_response()
-        id = await interaction.followup.send("Загадиваю слово...")
-        role_playing[channe_id]['info']['id'] = id.id
-
-        keys = list(role_playing[channe_id]['players'].keys())
-        player_1 = keys[0]
-        player_2 = keys[1]
-
-        text = random.choice(Hangman.text)
-
+        if len(role_playing[channe_id]['players']) == 2:
+            key = list(role_playing[channe_id]['players'].keys())
+            text = random.choice(list(Role_play.text1))
+            coin = random.choice(Role_play.text1[text]['list'])
+            meta = Role_play.text1[text]['m']
+            kye1 = random.choice(key)
+            rol = random.choice(Role_play.text1[text]['rol'])
+            role_playing[channe_id]['info']['rol1'] += f"\n[<@{kye1}>]=-=[{rol}]\n  -=()=-=====-=()=-"
+            key.remove(kye1)
+            Role_play.text1[text]['rol'].remove(rol)
+            role_playing[channe_id]['info']['rol1'] += f"\n[<@{key[0]}>]=-=[{Role_play.text1[text]['rol'][0]}]\n  -=()=-=====-=()=-"
         
+        elif len(role_playing[channe_id]['players']) == 3:
+            key = list(role_playing[channe_id]['players'].keys())
+            text = random.choice(list(Role_play.text2))
+            coin = random.choice(Role_play.text2[text]['list'])
+            meta = Role_play.text2[text]['m']
+            while True:
+                if key == []:
+                    break
+                kye1 = random.choice(key)
+                rol = random.choice(Role_play.text2[text]['rol'])
+                role_playing[channe_id]['info']['rol1'] += f"\n[<@{kye1}>]=-=[{rol}]\n  -=()=-=====-=()=-"
+                key.remove(kye1)
+                Role_play.text2[text]['rol'].remove(rol)
+
+        else:
+            key = list(role_playing[channe_id]['players'].keys())
+            text = random.choice(list(Role_play.text3))
+            coin = random.choice(Role_play.text3[text]['list'])
+            meta = Role_play.text3[text]['m']
+            while True:
+                if key == []:
+                    break
+                kye1 = random.choice(key)
+                rol = random.choice(Role_play.text3[text]['rol'])
+                role_playing[channe_id]['info']['rol1'] += f"\n[<@{kye1}>]=-=[{rol}]\n  -=()=-=====-=()=-"
+                key.remove(kye1)
+                Role_play.text3[text]['rol'].remove(rol)
+      
+        async def chat():
+            await interaction.followup.edit_message(message_id=role_playing[channe_id]['info']['id'], content=f"""
+══════════════════════
+            »»———<{meta}>———-««
+══════════════════════
+   
+>═════════════════════<
+{text}
+>═════════════════════<
+
+  -=()=-=====-=()=-{role_playing[channe_id]['info']['rol1']}
+""")
+            await asyncio.sleep(120)
+            await interaction.followup.send(coin)
+            del role_playing[channe_id]
+
+        await chat()
+
+      
     async def add_player(interaction: discord.Interaction):
         interaction1 = interaction.message.id
         member = interaction.user.id
@@ -3118,22 +3246,23 @@ class fun(commands.Cog):
                 await interaction.response.send_message("вы уже вошли в комнату", ephemeral=True)
                 return
             
-            if len(role_playing[channe_id]['players']) > 1:
+            if len(role_playing[channe_id]['players']) >= 4:
                 await interaction.response.send_message("комната занята", ephemeral=True)
             else:
                 role_playing[channe_id]['players'][member] = {"point": 0}
                 await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
-                add_pley_button.disabled = True
+                if len(role_playing[channe_id]['players']) >= 4:
+                    add_pley_button.disabled = True
                 start_button.disabled = False
-                await interaction.followup.edit_message(content=f"3\n2 Игроков в ожидании", message_id=interaction1, view=view)
+                await interaction.followup.edit_message(content=f"Желаете сыграть?\nНу же, чего вы ждите, начинайте игру!\n{len(role_playing[channe_id]['players'])} Игроков в ожидании", message_id=interaction1, view=view)
         else:
-            role_playing[channe_id] = {'players': {member: {"point": 0}}, "info": {"player": None, "id": None}}
+            role_playing[channe_id] = {'players': {member: {"point": 0}}, "info": {"player": None, "id": None, "coin": None, "rol1": "", "rol2": None, "rol3": None, "rol4": None}}
             await interaction.response.send_message("вы создали комнату", ephemeral=True)
-            await interaction.followup.edit_message(content="2\n1 Игрок в ожидании", message_id=interaction1)
-
+            await interaction.followup.edit_message(content="Желаете сыграть?\nНу же, чего вы ждите, начинайте игру!\n1 Игрок в ожидании", message_id=interaction1)
+            role_playing[channe_id]['info']['id'] = interaction1
 
     async def info(interaction: discord.Interaction):
-        await interaction.response.send_message("test", ephemeral=True)
+        await interaction.response.send_message(tekst.role_playing, ephemeral=True)
 
     start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
     button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
@@ -3161,7 +3290,11 @@ class fun(commands.Cog):
     self.client.loop.create_task(timeout_callback()) 
 
     start_button.disabled = True
-    await interaction.response.send_message("1", view=view)
+    await interaction.response.send_message("Желаете сыграть?\nНу же, чего вы ждите, начинайте игру!", view=view)
+
+#######################################################
+    ########## ? ####################
+#######################################################
 
 #   @app_commands.command(name="test", description="test")
 #   async def Hangman(self, interaction: discord.Interaction):

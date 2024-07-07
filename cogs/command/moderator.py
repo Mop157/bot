@@ -8,6 +8,8 @@ import requests
 import config
 import cogs.text.slad as slad
 
+lolo = ["slot", "pop", "joji"]
+
 class moderator(commands.Cog):
   def __init__(self, client: commands.Bot):
     self.client = client
@@ -65,18 +67,26 @@ class moderator(commands.Cog):
       content=f"""```ini
 список команд | Префикс: {self.prefix}
 
-[{self.prefix}rps] Камень, ножницы, бумага.
+      )==]|•-=> (1 игрок) <=-•|[==(
 [{self.prefix}slot] Игровый автомат.
 [{self.prefix}8ball] Вольшебная восьмерка.
-[{self.prefix}mafia] Мафия в дискорде.
-[{self.prefix}Buckshot roulette] Русская рулетка.
-[{self.prefix}ведьма] Карточная игра ведьма.
-[{self.prefix}викторина] Вопросы викторины.
 [{self.prefix}угадай_число] Игра на угадывание числа.
+
+     -)==]|•-=> (2 игрок) <=-•|[==(-
+[{self.prefix}rps] Камень, ножницы, бумага.
+[{self.prefix}Buckshot roulette] Русская рулетка.
+[{self.prefix}викторина] Вопросы викторины.
 [{self.prefix}виселица] Угадать слово по буквам.
 [{self.prefix}truth_or_lie] Правда или ложь.
 [{self.prefix}anagrams] Расшифровка слова.
-[{self.prefix}role_playing] Ролевые диалоги.
+
+    --)==]|•-=> (2+ игрок) <=-•|[==(--
+[{self.prefix}ведьма] Карточная игра ведьма.
+[{self.prefix}role_playing] Ролевые диалоги.(beta)
+
+   ---)==]|•-=> (4+ игрок) <=-•|[==(---
+[{self.prefix}mafia] Мафия в дискорде.
+
 
 [{self.prefix}info] информация об боте
 ```""")

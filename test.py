@@ -1,5 +1,5 @@
 import random
-import cogs.text.truth_or_lie_text as text
+import cogs.text.Role_playing_text as text
 
 buskshot = {}
 
@@ -86,8 +86,8 @@ def cartridg():
 hello = ["А", "б", "в"]
 te = "1234"
 
-for texts in text.text:
+for texts in text.text1:
      if len(texts) == 3:
         print(texts)
 
-print(len(text.text))
+print(len(text.text1))
