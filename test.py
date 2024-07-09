@@ -83,11 +83,10 @@ def cartridg():
 #         await don()
 
 # self.client.loop.create_task(timeout_callback()) 
-hello = ["А", "б", "в"]
-te = "1234"
+hello = {"he": {11: 1, 22: 0, 33: 0, 44: 0}}
+yees = 1
+# for k in text.text1:
 
-for texts in text.text1:
-     if len(texts) == 3:
-        print(texts)
+print(len(text.text2))
+    
 
-print(len(text.text1))

@@ -35,7 +35,7 @@ class Client(commands.Bot):
     @tasks.loop(seconds=120)
     async def my_task(self):
         activs = random.choice(config.activ)
-        await self.change_presence(activity=discord.Game(name=activs))
+        await self.change_presence(activity=discord.CustomActivity(name=activs))
 
     
 client = Client()

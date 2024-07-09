@@ -73,16 +73,16 @@ class moderator(commands.Cog):
 [{self.prefix}угадай_число] Игра на угадывание числа.
 
      -)==]|•-=> (2 игрок) <=-•|[==(-
-[{self.prefix}rps] Камень, ножницы, бумага.
+[{self.prefix}rps] Камень, ножницы, бумага.(beta)
 [{self.prefix}Buckshot roulette] Русская рулетка.
-[{self.prefix}викторина] Вопросы викторины.
-[{self.prefix}виселица] Угадать слово по буквам.
-[{self.prefix}truth_or_lie] Правда или ложь.
-[{self.prefix}anagrams] Расшифровка слова.
 
     --)==]|•-=> (2+ игрок) <=-•|[==(--
 [{self.prefix}ведьма] Карточная игра ведьма.
 [{self.prefix}role_playing] Ролевые диалоги.(beta)
+[{self.prefix}викторина] Вопросы викторины.
+[{self.prefix}виселица] Угадать слово по буквам.
+[{self.prefix}truth_or_lie] Правда или ложь.
+[{self.prefix}anagrams] Расшифровка слова.
 
    ---)==]|•-=> (4+ игрок) <=-•|[==(---
 [{self.prefix}mafia] Мафия в дискорде.
