@@ -23,6 +23,7 @@ hangman = {}
 truth_or_lie = {}
 anagrams = {}
 role_playing = {}
+puzzle = {}
 
 class fun(commands.Cog):
   def __init__(self, client: commands.Bot):
@@ -33,9 +34,8 @@ class fun(commands.Cog):
 ########## камень, ножничи, бумага ####################
 #######################################################
 
-
   @app_commands.command(name="rps", description="Камень, ножницы, бумага")
-  async def game(self, interaction: discord.Interaction):
+  async def rps(self, interaction: discord.Interaction):
     if interaction.guild is None:
         await interaction.response.send_message(tekst.DM)
         return
@@ -47,10 +47,9 @@ class fun(commands.Cog):
     button_rps_bot = Button(emoji=f"🤖", style=discord.ButtonStyle.blurple, custom_id="button_rps1")
     button_rps_user = Button(emoji=f"👥", style=discord.ButtonStyle.blurple, custom_id="button_rps2")
     button_rps_info = Button(emoji=f"❓", style=discord.ButtonStyle.green, custom_id="button_rps3")
-    button_rps_paper = Button(emoji=f"📄", style=discord.ButtonStyle.gray, custom_id="button_rps4")
-    button_rps_kamen = Button(emoji=f"⛰️", style=discord.ButtonStyle.gray, custom_id="button_rps5")
-    button_rps_noznuci = Button(emoji=f"✂️", style=discord.ButtonStyle.gray, custom_id="button_rps6")
-    button_rps_play = Button(emoji="▶️", style=discord.ButtonStyle.green, custom_id="button_rps7")
+    button_rps_paper = Button(emoji=f"📄", style=discord.ButtonStyle.gray, custom_id="бумага")
+    button_rps_kamen = Button(emoji=f"⛰️", style=discord.ButtonStyle.gray, custom_id="камень")
+    button_rps_noznuci = Button(emoji=f"✂️", style=discord.ButtonStyle.gray, custom_id="ножницы")
 
     view_game = discord.ui.View()
     view_game.add_item(button_rps_bot)
@@ -58,7 +57,38 @@ class fun(commands.Cog):
     view_game.add_item(button_rps_info)
 
     async def button_callback_rps_bot(interaction: discord.Interaction):
-        view_bot = discord.ui.View(timeout=30)
+        async def game(interaction: discord.Interaction):
+            choices = ['камень', 'ножницы', 'бумага']
+            user = interaction.data['custom_id']
+            stop_event3.set()
+
+            bot_choice = random.choice(choices)
+            final = None
+
+            if user == bot_choice:                    
+                final = ">-⸩ НИЧЬЯ ⸨-<"
+            elif (user == 'камень' and bot_choice == 'ножницы') or \
+                 (user == 'ножницы' and bot_choice == 'бумага') or \
+                 (user == 'бумага' and bot_choice == 'камень'):
+                final = ">-⸩ Вы выиграли! ⸨-<"
+            else:
+                final = ">-⸩ Я выиграл! ⸨-<"
+
+            await interaction.response.edit_message(content=f"""
+=[]=-~-+·༒⟮⟯༺༻⟮⟯༒·+-~-=[]=
+      +(GameWiz)=-0-=({interaction.user})+
+  >-⸩ {bot_choice} ⸨-<*>-⸩ {user} ⸨-<
+
+⸨⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⹈꧁꧂⹈⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⸩
+            {final}
+⸨⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⹈꧁꧂⹈⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⸩
+""", view=None)
+        
+        button_rps_paper.callback = game
+        button_rps_kamen.callback = game
+        button_rps_noznuci.callback = game
+
+        view_bot = discord.ui.View(timeout=60)
         view_bot.add_item(button_rps_kamen)
         view_bot.add_item(button_rps_noznuci)
         view_bot.add_item(button_rps_paper)
@@ -74,97 +104,94 @@ class fun(commands.Cog):
         self.client.loop.create_task(timeout3_callback()) 
 
         await interaction.response.send_message(content=tekst.rps_play_bot, view=view_bot)
-        async def paper(interaction: discord.Interaction):
-            choices = ['камень', 'ножницы', 'бумага']
-            user = 'бумага'
-            stop_event3.set()
-
-            bot_choice = random.choice(choices)
-
-            if user == bot_choice:                    
-                await interaction.response.edit_message(content=f"Ничья!\n\nВы выбрали: {user}, я выбрал: {bot_choice}", view=None)
-            elif bot_choice == 'ножницы':
-                await interaction.response.edit_message(content=f"Я выиграл!\n\nВы выбрали: {user}, я выбрал: {bot_choice}", view=None)
-            elif bot_choice == 'камень':
-                await interaction.response.edit_message(content=f"Вы выиграли!\n\nВы выбрали: {user}, я выбрал: {bot_choice}", view=None)
-                    
-        async def kamen(interaction: discord.Interaction):
-            user = 'камень'
-            choices = ['камень', 'ножницы', 'бумага']
-            stop_event3.set()
-
-            bot_choice = random.choice(choices)
-
-            if user == bot_choice:                    
-                await interaction.response.edit_message(content=f"Ничья!\n\nВы выбрали: {user}, я выбрал: {bot_choice}", view=None)
-            elif bot_choice == 'ножницы':
-                await interaction.response.edit_message(content=f"Вы выиграли!\n\nВы выбрали: {user}, я выбрал: {bot_choice}", view=None)
-            elif bot_choice == 'бумага':
-                await interaction.response.edit_message(content=f"Я выиграл!\n\nВы выбрали: {user}, я выбрал: {bot_choice}", view=None)
-            
-        async def noznuci(interaction: discord.Interaction):
-            user = 'ножницы'
-            choices = ['камень', 'ножницы', 'бумага']
-            stop_event3.set()
-
-            bot_choice = random.choice(choices)
-
-            if user == bot_choice:                    
-                await interaction.response.edit_message(content=f"Ничья!\n\nВы выбрали: {user}, я выбрал: {bot_choice}", view=None)
-            elif bot_choice == 'бумага':
-                await interaction.response.edit_message(content=f"Вы выиграли!\n\nВы выбрали: {user}, я выбрал: {bot_choice}", view=None)
-            elif bot_choice == 'камень':
-                await interaction.response.edit_message(content=f"Я выиграл!\n\nВы выбрали: {user}, я выбрал: {bot_choice}", view=None)
-
-        button_rps_paper.callback = paper
-        button_rps_kamen.callback = kamen
-        button_rps_noznuci.callback = noznuci
 
     async def button_callback_rps_user(interaction: discord.Interaction):
-        view_game_user = discord.ui.View(timeout=60)
-        view_game_user.add_item(button_rps_play)
-        view_game_user.add_item(button_rps_user)
-        view_game_user.add_item(button_rps_info)
-
-        channel_id = interaction.channel_id
-        member = interaction.user.id
-        stop_event1 = asyncio.Event()
-        interaction1 = interaction
-
+        channel_id = interaction.channel.id
         if channel_id in list_rps:
             await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
             return
-
-        async def timeout1_callback():
-            try:
-                await asyncio.wait_for(stop_event1.wait(), timeout=view_game_user.timeout)
-            except asyncio.TimeoutError:
-                try:
-                    del list_rps[channel_id]
-                    return
-                except KeyError:
-                    return
         
-        if channel_id in list_rps:
-            if len(list_rps[channel_id]['players']) == 1:
-                list_rps[channel_id]['players'][member] = None
-                if len(list_rps[channel_id]['players']) == 1:
+        async def play_add(interaction: discord.Interaction):
+            member = interaction.user.id
+            if channel_id in list_rps:
+                if interaction.user.id in list_rps[channel_id]['players']:
                     await interaction.response.send_message(content=tekst.rps_error_user1, ephemeral=True)
                     return
-                user_bol = 2
-                button_rps_user.disabled = True
-                button_rps_play.disabled = False
+
+                if len(list_rps[channel_id]['players']) == 1:
+                    list_rps[channel_id]['players'][member] = {"xod": None, "out": False}
+                    button_rps_add.disabled = True
+                    button_rps_play.disabled = False
+                else:
+                    await interaction.response.send_message(content=tekst.rps_error_user2, ephemeral=True)
+                    return  
             else:
-                await interaction.response.send_message(content=tekst.rps_error_user2, ephemeral=True)
-                return  
-        else:
-            list_rps[channel_id] = {'players': {member: None}}
-            user_bol = 1
-            button_rps_play.disabled = True
-            self.client.loop.create_task(timeout1_callback()) 
+                list_rps[channel_id] = {'players': {member: {"xod": None, "out": False}}}
+
+            await interaction.response.edit_message(content=f"С кем бы вы хотели сыграть?\nигроков {len(list_rps[channel_id]['players'])}/2\n", view=view_game_user)
 
         async def play(interaction: discord.Interaction):
-            view_user = discord.ui.View(timeout=30)
+            keys = list(list_rps[channel_id]['players'].keys())
+
+            if interaction.user.id == keys[0]:
+                    pass
+            else:
+                    await interaction.response.send_message("Начать игру может только создатель комнаты", ephemeral=True)
+                    return
+
+            async def games(interaction: discord.Interaction):
+                stop_event2.set()
+                if interaction.user.id not in list_rps[channel_id]['players']:
+                    await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
+                    return
+                
+                if list_rps[channel_id]['players'][interaction.user.id]['out'] == True:
+                    await interaction.response.send_message(tekst.rps_error_user3, ephemeral=True)
+                    return
+                
+                list_rps[channel_id]['players'][interaction.user.id]['xod'] = interaction.data['custom_id']
+                list_rps[channel_id]['players'][interaction.user.id]['out'] = True
+
+                if list_rps[channel_id]['players'][keys[0]]['out'] == True and list_rps[channel_id]['players'][keys[1]]['out'] == True:
+                    player_1 = list_rps[channel_id]['players'][keys[0]]['xod']
+                    player_2 = list_rps[channel_id]['players'][keys[1]]['xod']
+                    final = None
+
+                    if player_1 == player_2:                    
+                        final = ">-⸩ Выиграл! | НИЧЬЯ ⸨-<"
+                    elif (player_1 == 'камень' and player_2 == 'ножницы') or \
+                        (player_1 == 'ножницы' and player_2 == 'бумага') or \
+                        (player_1 == 'бумага' and player_2 == 'камень'):
+                        final = f">-⸩ Выиграл! | <@{keys[0]}> ⸨-<"
+                    else:
+                        final = f">-⸩ Выиграл! | <@{keys[1]}> ⸨-<"        
+
+                    await interaction.response.edit_message(content=f"""
+=[]=-~-+·༒⟮⟯༺༻⟮⟯༒·+-~-=[]=
+      +(<@{keys[0]}>)=-0-=(<@{keys[1]}>)+
+  >-⸩ {player_1} ⸨-<*>-⸩ {player_2} ⸨-<
+  
+⸨⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⹈꧁꧂⹈⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⸩
+    {final}
+⸨⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⹈꧁꧂⹈⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⸩
+""", view=None)
+                    del list_rps[channel_id]
+                    return
+                else:
+                    player_1 = "*пусто*" if list_rps[channel_id]['players'][keys[0]]['out'] == False else "*в ожидание*"
+                    player_2 = "*пусто*" if list_rps[channel_id]['players'][keys[1]]['out'] == False else "*в ожидание*"
+                    await interaction.response.edit_message(content=f"""
+⸨⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⹈꧁꧂⹈⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⸩
++(<@{keys[0]}>)=-0-=(<@{keys[1]}>)+
+>-⸩ {player_1} ⸨-<*>-⸩ {player_2} ⸨-<
+⸨⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⹈꧁꧂⹈⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⸩
+""")
+
+            button_rps_kamen.callback = games
+            button_rps_noznuci.callback = games
+            button_rps_paper.callback = games
+
+            view_user = discord.ui.View(timeout=60)
             view_user.add_item(button_rps_kamen)
             view_user.add_item(button_rps_noznuci)
             view_user.add_item(button_rps_paper)
@@ -183,73 +210,44 @@ class fun(commands.Cog):
                         return
             self.client.loop.create_task(timeout2_callback()) 
 
-            button_rps_play.disabled = True
-            await interaction.response.edit_message(view=view_game_user)
+            player_1 = "*пусто*" if list_rps[channel_id]['players'][keys[0]]['out'] == False else "*в ожидание*"
+            player_2 = "*пусто*" if list_rps[channel_id]['players'][keys[1]]['out'] == False else "*в ожидание*"
+            await interaction.response.edit_message(content=f"""
+⸨⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⹈꧁꧂⹈⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⸩
++(<@{keys[0]}>)=-0-=(<@{keys[1]}>)+
+>-⸩ {player_1} ⸨-<*>-⸩ {player_2} ⸨-<
+⸨⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⹈꧁꧂⹈⹆⹈⹅⹇⹅⹇⹅⹇⹅⹇⹅⹈⹆⸩
+""", view=view_user)
             
-            await interaction.followup.send(tekst.rps_play_bot, view=view_user)
-
-            async def paper1(interaction: discord.Interaction):
-                await handle_choice(interaction, "Бумага")
-            async def kamen1(interaction: discord.Interaction):
-                await handle_choice(interaction, "Камень")
-            async def noznuci1(interaction: discord.Interaction):
-                await handle_choice(interaction, "Ножницы")
-                
-            button_rps_kamen.callback = kamen1
-            button_rps_paper.callback = paper1
-            button_rps_noznuci.callback = noznuci1
-
-            async def handle_choice(interaction, choice):
-                player_id = interaction.user.id
-                if list_rps[channel_id]['players'][player_id] == None:
-                    list_rps[channel_id]['players'][player_id] = choice
-                else:
-                    await interaction.response.send_message(tekst.rps_error_user3, ephemeral=True)
-                    return
-
-                for gam in list_rps[channel_id]['players']:
-                    if gam == player_id:
-                        pass
-                    else:
-                        break
-
-                try:
-                    await interaction.response.send_message(f"Вы выбрали {choice}. Ожидание второго игрока...", ephemeral=True)
-                except discord.errors.InteractionResponded:
-                    await interaction.followup.send(f"Вы выбрали {choice}. Ожидание второго игрока...", ephemeral=True)
-
-                if (list_rps[channel_id]['players'][player_id] is not None) and (list_rps[channel_id]['players'][gam] is not None):
-                    user1 = None
-                    user2 = None
-                    for gam1 in list_rps[channel_id]['players']:
-                        if user1 == None:
-                            user1 = gam1
-                            continue
-                        if user2 == None:
-                            user2 = gam1
-                    player_1 = list_rps[channel_id]['players'][user1]
-                    player_2 = list_rps[channel_id]['players'][user2]
-                    stop_event2.set()
-
-                    if player_1 == player_2:
-                        result = "Ничья!"
-                    elif (player_1 == "Камень" and player_2 == "Ножницы") or \
-                        (player_1 == "Ножницы" and player_2 == "Бумага") or \
-                        (player_1 == "Бумага" and player_2 == "Камень"):
-                        result = f"Игрок <@{user1}> выиграл!"
-                    else:
-                        result = f"Игрок <@{user2}> выиграл!"
-            
-                    await interaction.followup.send(f"{result}\n\nигрок: <@{user1}> выбрал {player_1}\nигрок: <@{user2}> выбрал {player_2}")
-                    try:
-                        del list_rps[channel_id]
-                        return
-                    except KeyError:
-                        return
+                    
+        button_rps_add = Button(emoji=f"➕", style=discord.ButtonStyle.blurple)
+        button_rps_play = Button(emoji="▶️", style=discord.ButtonStyle.green)
 
         button_rps_play.callback = play
+        button_rps_add.callback = play_add
 
-        await interaction.response.edit_message(content=f"С кем бы вы хотели сыграть?\nигроков {user_bol}/2\n", view=view_game_user)
+        view_game_user = discord.ui.View(timeout=60)
+        view_game_user.add_item(button_rps_play)
+        view_game_user.add_item(button_rps_add)
+        view_game_user.add_item(button_rps_info)
+
+        channel_id = interaction.channel_id
+        member = interaction.user.id
+        stop_event1 = asyncio.Event()
+
+        async def timeout1_callback():
+            try:
+                await asyncio.wait_for(stop_event1.wait(), timeout=view_game_user.timeout)
+            except asyncio.TimeoutError:
+                try:
+                    del list_rps[channel_id]
+                    return
+                except KeyError:
+                    return
+        self.client.loop.create_task(timeout1_callback())
+
+        button_rps_play.disabled = True
+        await interaction.response.edit_message(content=f"Создайте комнату и ожидайте игроков", view=view_game_user)
 
     async def button_callback_rps_info(interaction: discord.Interaction):
         await interaction.response.send_message(content=tekst.rps_info, ephemeral=True)
@@ -1609,7 +1607,7 @@ class fun(commands.Cog):
                 button1.callback = attac
                 button2.callback = deffen
 
-                view_game = View()
+                view_game = View(timeout=None)
                 view_game.add_item(button2)
                 view_game.add_item(button1)
 
@@ -3460,7 +3458,184 @@ class fun(commands.Cog):
     start_button.disabled = True
     await interaction.response.send_message("Желаете сыграть?\nНу же, чего вы ждите, начинайте игру!", view=view)
 
-#######################################################
+######################################################
+    ######### головоломки ####################
+######################################################
+
+  @app_commands.command(name="головоломка", description="Коп. Головоломки")
+  async def Puzzle(self, interaction: discord.Interaction):
+
+    if interaction.guild is None:
+        await interaction.response.send_message(tekst.DM)
+        return
+    if config.Puzzle == False:
+        await interaction.response.send_message(tekst.nots)
+        return
+    
+    channe_id = interaction.channel_id
+
+    if channe_id in puzzle:
+        await interaction.response.send_message(f":x: | комната занята", ephemeral=True)
+        return
+
+    async def game_start(interaction: discord.Interaction):
+        stop_event.set()
+        keys = list(puzzle[channe_id]['players'].keys())
+        player_1 = keys[0]
+        player_2 = keys[1]
+        dm_player_1 = interaction.guild.get_member(keys[0])
+        dm_player_2 = interaction.guild.get_member(keys[1])
+        # id1 = await dm_player_1.send("hello1")
+        # id2 = await dm_player_2.send("425364")
+        # puzzle[channe_id]['info']['id1'] = id1.id
+        # puzzle[channe_id]['info']['id2'] = id2.id
+        puzzle[channe_id]['info']['player'] = 1
+
+        def Puzzle1():
+            pass
+
+        def Puzzle2():
+            pass
+
+        def Puzzle3():
+            pass
+
+        async def chat(interaction: discord.Interaction):
+            if interaction.user.id not in puzzle[channe_id]['players']:
+                await interaction.response.send_message("комната занята", ephemeral=True)
+                return
+            
+            elif interaction.user.id == player_1:
+                await interaction.response.send_message(f"{player_1}", ephemeral=True)
+
+
+            elif interaction.user.id == player_2:
+                async def Puzzle1(interaction: discord.Interaction):
+
+                    if interaction.data['custom_id'] == "R":
+                        if puzzle[channe_id]['info']['player'] == 1:
+                            puzzle[channe_id]['info']['player'] = 2
+                            await interaction.response.edit_message(content=f"2")
+
+                        elif puzzle[channe_id]['info']['player'] == 2:
+                            puzzle[channe_id]['info']['player'] = 3
+                            await interaction.response.edit_message(content=f"3")
+
+                        elif puzzle[channe_id]['info']['player'] == 3:
+                            puzzle[channe_id]['info']['player'] = 1
+                            await interaction.response.edit_message(content=f"1")
+
+                    elif interaction.data['custom_id'] == "L":
+                        if puzzle[channe_id]['info']['player'] == 1:
+                            puzzle[channe_id]['info']['player'] = 3
+                            await interaction.response.edit_message(content=f"3")
+
+                        elif puzzle[channe_id]['info']['player'] == 2:
+                            puzzle[channe_id]['info']['player'] = 1
+                            await interaction.response.edit_message(content=f"1")
+
+                        elif puzzle[channe_id]['info']['player'] == 3:
+                            puzzle[channe_id]['info']['player'] = 2
+                            await interaction.response.edit_message(content=f"2")
+
+                    elif interaction.data['custom_id'] == "B":
+                        pass
+
+                    elif interaction.data['custom_id'] == "":
+                        pass
+
+                    elif interaction.data['custom_id'] == "":
+                        pass
+
+                button_R = Button(emoji="➡️", style=discord.ButtonStyle.blurple, custom_id="R")
+                button_B = Button(emoji="🇧", style=discord.ButtonStyle.blurple, custom_id="B")
+                button_L = Button(emoji="⬅️", style=discord.ButtonStyle.blurple, custom_id="L")
+                options = [discord.SelectOption(label="hello")]
+
+                select = discord.ui.Select(
+                        placeholder="выберите предмет",
+                        min_values=1,
+                        max_values=1,
+                        options=options
+                                            )
+                
+                button_R.callback = Puzzle1
+                button_B.callback = Puzzle1
+                button_L.callback = Puzzle1
+                select.callback = Puzzle1
+
+                view_player2 = View(timeout=None)
+                view_player2.add_item(button_L)
+                # view_player2.add_item(button_B)
+                view_player2.add_item(button_R)
+                view_player2.add_item(select)
+
+                await interaction.response.send_message(f"1", ephemeral=True, view=view_player2)
+
+        
+        button_start = Button(emoji=f"▶️", style=discord.ButtonStyle.blurple)
+        button_start.callback = chat
+        
+        view_start = View(timeout=None)
+        view_start.add_item(button_start)
+
+        await interaction.response.edit_message(content="игра началась!", view=view_start)
+ 
+    async def add_player(interaction: discord.Interaction):
+        interaction1 = interaction.message.id
+        member = interaction.user.id
+
+        if channe_id in puzzle:
+            if member in puzzle[channe_id]['players']:
+                await interaction.response.send_message("вы уже вошли в комнату", ephemeral=True)
+                return
+            
+            if len(puzzle[channe_id]['players']) > 1:
+                await interaction.response.send_message("комната занята", ephemeral=True)
+            else:
+                puzzle[channe_id]['players'][member] = {"point": 0}
+                await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
+                add_pley_button.disabled = True
+                start_button.disabled = False
+                await interaction.followup.edit_message(content=f"{tekst.Puzzle}\n2 Игроков в ожидании", message_id=interaction1, view=view)
+        else:
+            puzzle[channe_id] = {'players': {member: {"point": 0}}, "info": {"player": None, "id1": None, "id2": None}}
+            await interaction.response.send_message("вы создали комнату", ephemeral=True)
+            await interaction.followup.edit_message(content=f"{tekst.Puzzle}\n1 Игрок в ожидании", message_id=interaction1)
+
+
+    async def info(interaction: discord.Interaction):
+        await interaction.response.send_message("test", ephemeral=True)
+
+    start_button = Button(emoji=f"▶️", style=discord.ButtonStyle.green)
+    button_info = Button(emoji=f"❓", style=discord.ButtonStyle.green)
+    add_pley_button = Button(emoji=f"➕", style=discord.ButtonStyle.blurple)
+
+    start_button.callback = game_start
+    add_pley_button.callback = add_player
+    button_info.callback = info
+
+    view = View(timeout=180)
+    view.add_item(start_button)
+    view.add_item(add_pley_button)
+    view.add_item(button_info)
+    stop_event = asyncio.Event()
+
+    async def timeout_callback():
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=view.timeout)
+        except asyncio.TimeoutError:
+            try:
+                del puzzle[channe_id]
+            except:
+                pass
+            
+    self.client.loop.create_task(timeout_callback()) 
+
+    start_button.disabled = True
+    await interaction.response.send_message(tekst.Puzzle, view=view)
+
+##############################
     ########## ? ####################
 #######################################################
 

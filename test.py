@@ -84,9 +84,12 @@ def cartridg():
 
 # self.client.loop.create_task(timeout_callback()) 
 hello = {"he": {11: 1, 22: 0, 33: 0, 44: 0}}
-yees = 1
+yees = "3 hello"
 # for k in text.text1:
 
-print(len(text.text2))
+if yees in "3":
+     print("yes")
+
+print(yees)
     
 

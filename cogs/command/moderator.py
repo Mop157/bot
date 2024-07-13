@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, random
 
 import discord
 from discord.ext import commands
@@ -16,50 +16,66 @@ class moderator(commands.Cog):
     self.prefix = config.prefix
 
   async def menu_callback(self, interaction: discord.Interaction):
-    selected_option = interaction.data['values'][0]
-    x = interaction.guild.get_member_named(interaction.data['values'][0])
-    await interaction.response.send_message(f"You selected: {x}, {x.id}", ephemeral=True)
+    print(interaction.data)
+    selected_option = interaction.data['custom_id']
+    await interaction.response.send_message(f"{selected_option}", ephemeral=True)
 
 # Команда для отображения меню
   @commands.command(name="menu")
   async def menu(self, ctx: commands.Context):
     # Создаем опции для выпадающего меню
     
-    member = [670163392979271710, 628686422244589569]
-    options = []
-
-    for members in member:
-       print(members)
-       c = ctx.guild.get_member(int(members))
-       options.append(discord.SelectOption(label=f"{c}"))
-    # Создаем Select меню
-    select = discord.ui.Select(
-        placeholder="Choose an option...",
-        min_values=1,
-        max_values=1,
-        options=options
-    )
-    select.callback = self.menu_callback
+    button = Button(label="test", style=discord.ButtonStyle.red, custom_id="hello")
+    
+    button.callback = self.menu_callback
 
     # Создаем View и добавляем Select меню в View
-    view = discord.ui.View()
-    view.add_item(select)
+    view = discord.ui.View(timeout=None)
+    view.add_item(button)
 
     # Отправляем сообщение с View
     await ctx.send("\n\nSelect an option from the menu below:", view=view)
 
-  @commands.command()
-  async def test(self, ctx):
-    id = 670163392979271710
-    def check(message):
-        return message.author.id == id
-    try:
-        message = await self.client.wait_for('message', timeout=60.0, check=check)
-    except asyncio.TimeoutError:
-        await ctx.send("Вы не отправили сообщение вовремя.")
-    else:
-        await ctx.send(f"Вы отправили: {message.content}")
-        print(message.content)
+  # @app_commands.command(name="test", description="Задает вопрос")
+  # async def ball(self, interaction: discord.Interaction, *, вопрос: str = None):
+
+  #   if вопрос is None:
+  #       await interaction.response.send_message(":x: | Вы не задали вопрос!")
+  #       return
+    
+  #   karts = ["1♥️", "2♥️", "3♥️", "4♥️", "5♥️", "6♥️", "7♥️", "8♥️", "9♥️", "10♥️", "J♥️", "Q♥️", "K♥️", "A♥️",
+  #            "1♦️", "2♦️", "3♦️", "4♦️", "5♦️", "6♦️", "7♦️", "8♦️", "9♦️", "10♦️", "J♦️", "Q♦️", "K♦️", "A♦️",
+  #            "1♠️", "2♠️", "3♠️", "4♠️", "5♠️", "6♠️", "7♠️", "8♠️", "9♠️", "10♠️", "J♠️", "Q♠️", "K♠️", "A♠️",
+  #            "1♣️", "2♣️", "3♣️", "4♣️", "5♣️", "6♣️", "7♣️", "8♣️", "9♣️", "10♣️", "J♣️", "Q♣️", "K♣️", "A♣️"]
+  #   print(вопрос)
+  #   for op in вопрос:
+  #     if op in "3":
+  #       kart1 = random.choice(karts)
+  #       karts.remove(kart1)
+  #       kart2 = random.choice(karts)
+  #       karts.remove(kart2)
+  #       kart3 = random.choice(karts)
+  #       karts.remove(kart3)
+  #       await interaction.response.send_message(
+  #             f"__Вопрос__: {вопрос}\n\n|{kart1}|{kart2}|{kart3}|"
+  #         )
+  #       return
+  #     else:
+  #       kart1 = random.choice(karts)
+  #       karts.remove(kart1)
+  #       kart2 = random.choice(karts)
+  #       karts.remove(kart2)
+  #       kart3 = random.choice(karts)
+  #       karts.remove(kart3)
+  #       kart4 = random.choice(karts)
+  #       karts.remove(kart4)
+  #       await interaction.response.send_message(
+  #             f"__Вопрос__: {вопрос}\n\n|{kart1}|{kart2}|{kart3}|{kart4}|"
+  #         )
+  #       return
+
+  
+        
 
   @app_commands.command(name="help", description="help")
   async def help(self, interaction: discord.Interaction):
@@ -72,11 +88,11 @@ class moderator(commands.Cog):
 [{self.prefix}8ball] Вольшебная восьмерка.
 [{self.prefix}угадай_число] Игра на угадывание числа.
 
-     -)==]|•-=> (2 игрок) <=-•|[==(-
-[{self.prefix}rps] Камень, ножницы, бумага.(beta)
+     -)==]|•-=> (2 игрока) <=-•|[==(-
+[{self.prefix}rps] Камень, ножницы, бумага.
 [{self.prefix}Buckshot roulette] Русская рулетка.
 
-    --)==]|•-=> (2+ игрок) <=-•|[==(--
+    ~-)==]|•-=> (2+ игрока) <=-•|[==(-~
 [{self.prefix}ведьма] Карточная игра ведьма.
 [{self.prefix}role_playing] Ролевые диалоги.(beta)
 [{self.prefix}викторина] Вопросы викторины.
@@ -84,7 +100,7 @@ class moderator(commands.Cog):
 [{self.prefix}truth_or_lie] Правда или ложь.
 [{self.prefix}anagrams] Расшифровка слова.
 
-   ---)==]|•-=> (4+ игрок) <=-•|[==(---
+   -=-)==]|•-=> (4+ игрока) <=-•|[==(-=-
 [{self.prefix}mafia] Мафия в дискорде.
 
 
@@ -133,7 +149,7 @@ class moderator(commands.Cog):
 Версия: {config.versia}
 Количество серверов: {len(self.client.guilds) - 4}
 Количество всех игр: {synceds - 2}
-Количество всех команд: {all_commands - 1}
+Количество всех команд: {all_commands}
 ```
 Спасибо за использование меня в играх! Если у вас есть вопросы или нужна помощь, обратитесь к моему автору.""", view=view)
 
