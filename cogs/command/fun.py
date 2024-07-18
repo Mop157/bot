@@ -3490,6 +3490,7 @@ class fun(commands.Cog):
         # puzzle[channe_id]['info']['id1'] = id1.id
         # puzzle[channe_id]['info']['id2'] = id2.id
         puzzle[channe_id]['info']['player'] = 1
+        caskets = ["1", "2", "3", "4", "5"]
 
         def Puzzle1():
             pass
@@ -3510,70 +3511,351 @@ class fun(commands.Cog):
 
 
             elif interaction.user.id == player_2:
+                
+                async def Puzzle2(interaction: discord.Interaction):
+                    if interaction.data['custom_id'] == "буфет1":
+                        puzzle[channe_id]['home']['буфет'] = False
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        puzzle[channe_id]['players'][player_2]['item'].append("страница ?")
+                        puzzle[channe_id]['players'][player_2]['item'].append("годиная стрелка")
+                        await interaction.response.edit_message(content=f"Открыв буфет, я понял, что его давно никто не открывал: он весь был в пыли. Сквозь всю эту пыль я смог разглядеть какую-то страницу и стрелку от часов. Похоже, здесь больше ничего нет.", view=view_player2)
+
+                    elif interaction.data['custom_id'] == "тумбочка1":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        if puzzle[channe_id]['home']['тумбочка1'] == False:
+                            await interaction.response.edit_message(content=f"сценарий пустой шкатулки", view=view_player2)
+                        else:
+                            view_player2.add_item(button5)
+                            await interaction.response.edit_message(content=f"сценарий шкатулки", view=view_player2)
+
+                    elif interaction.data['custom_id'] == "тумбочка2":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        if puzzle[channe_id]['home']['тумбочка2'] == False:
+                            await interaction.response.edit_message(content=f"сценарий пустой тумбочки", view=view_player2)
+                        else:
+                            if "ключ" in puzzle[channe_id]['players'][player_2]['item']:
+                                puzzle[channe_id]['players'][player_2]['item'].remove("ключ")
+                                puzzle[channe_id]['players'][player_2]['item'].append("изолента")
+                                puzzle[channe_id]['home']['тумбочка2'] = False
+                                await interaction.response.edit_message(content=f"сценарий получения изоленты", view=view_player2)
+                            else:
+                                await interaction.response.edit_message(content=f"сценарий закритой тумбочки", view=view_player2)
+
+                    elif interaction.data['custom_id'] == "тумбочка3":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        await interaction.response.edit_message(content=f"V", view=view_player2)
+
+                    elif interaction.data['custom_id'] == "тумбочка11":
+                        puzzle[channe_id]['home']['буфет'] = False
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        view_player2.add_item(button_caskets1)
+                        view_player2.add_item(button_caskets5)
+                        view_player2.add_item(button_caskets2)
+                        view_player2.add_item(button_caskets3)
+                        view_player2.add_item(button_caskets4)
+                        await interaction.response.edit_message(content=f"""
+|   ︿    ︿ {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] else " "} ︿   {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка3']] in ["2", "3", "4", "5"] else " "}︿
+| {">" if puzzle[channe_id]['kod']['тумбочка'] == 1 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка1']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 2 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка2']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 3 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка3']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 4 else "   "} {caskets[puzzle[channe_id]['kod']['тумбочка4']]}
+|   ﹀    ﹀ {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] else " "} ﹀   {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка3']] in ["2", "3", "4", "5"] else " "}﹀                                                       
+""", view=view_player2)
+
+                    elif interaction.data['custom_id'] in ["caskets1", "caskets2", "caskets3", "caskets4", "caskets5"]:
+                        if interaction.data['custom_id'] == "caskets1":
+                            if puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] == 4:
+                                puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] = 0
+                            else:
+                                puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] += 1
+
+                        elif interaction.data['custom_id'] == "caskets3":
+                            if puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] == 0:
+                                puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] = 4
+                            else:
+                                puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] -= 1
+
+                        elif interaction.data['custom_id'] == "caskets2":
+                            if puzzle[channe_id]['kod']['тумбочка'] == 1:
+                                puzzle[channe_id]['kod']['тумбочка'] = 4
+                            else:
+                                puzzle[channe_id]['kod']['тумбочка'] -= 1
+                        
+                        elif interaction.data['custom_id'] == "caskets4":
+                            if puzzle[channe_id]['kod']['тумбочка'] == 4:
+                                puzzle[channe_id]['kod']['тумбочка'] = 1
+                            else:
+                                puzzle[channe_id]['kod']['тумбочка'] += 1
+
+                        elif interaction.data['custom_id'] == "caskets5":
+                            if caskets[puzzle[channe_id]['kod']['тумбочка1']] == "5" and caskets[puzzle[channe_id]['kod']['тумбочка2']] == "1" and caskets[puzzle[channe_id]['kod']['тумбочка3']] == "3" and caskets[puzzle[channe_id]['kod']['тумбочка4']] == "2":
+                                await interaction.response.send_message("gooot!!!", ephemeral=True)
+                                return
+                            else:
+                                await interaction.response.send_message("not!!!!", ephemeral=True)
+                                return
+                            
+                        await interaction.response.edit_message(content=f"""
+|   ︿    ︿ {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] else " "} ︿   {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка3']] in ["2", "3", "4", "5"] else " "}︿
+| {">" if puzzle[channe_id]['kod']['тумбочка'] == 1 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка1']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 2 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка2']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 3 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка3']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 4 else "   "} {caskets[puzzle[channe_id]['kod']['тумбочка4']]}
+|   ﹀    ﹀ {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] else " "} ﹀   {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка3']] in ["2", "3", "4", "5"] else " "}﹀                                                       
+""")
+                        return
+                            
+
+                    elif interaction.data['custom_id'] == "телевизров":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        if puzzle[channe_id]['home']['тумбочка2'] == False:
+                            await interaction.response.edit_message(content=f"сценарий пустой тумбочки", view=view_player2)
+                        else:
+                            if "ключ" in puzzle[channe_id]['players'][player_2]['item']:
+                                puzzle[channe_id]['players'][player_2]['item'].remove("ключ")
+                                puzzle[channe_id]['players'][player_2]['item'].append("изолента")
+                                puzzle[channe_id]['home']['тумбочка2'] = False
+                                await interaction.response.edit_message(content=f"сценарий получения изоленты", view=view_player2)
+                            else:
+                                await interaction.response.edit_message(content=f"сценарий закритой тумбочки", view=view_player2)
+
+
+                    elif interaction.data['custom_id'] == "тgdgd":
+                        puzzle[channe_id]['home']['буфет'] = False
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+
+
                 async def Puzzle1(interaction: discord.Interaction):
+                    
+                    if 'values' not in interaction.data:
+                        if interaction.data['custom_id'] == "R":
+                            if puzzle[channe_id]['info']['player'] == 1:
+                                puzzle[channe_id]['info']['player'] = 2
+                                view_player2.remove_item(select1)
+                                view_player2.add_item(select2)
+                                await interaction.response.edit_message(content=f"Обернувшись, я увидел довольно похожую картину: старый телефон, по которому общаюсь с тобой, и какую-то странную дверь, видимо, закрытую.", view=view_player2)
 
-                    if interaction.data['custom_id'] == "R":
-                        if puzzle[channe_id]['info']['player'] == 1:
-                            puzzle[channe_id]['info']['player'] = 2
-                            await interaction.response.edit_message(content=f"2")
+                            elif puzzle[channe_id]['info']['player'] == 2:
+                                puzzle[channe_id]['info']['player'] = 3
+                                view_player2.remove_item(select2)
+                                view_player2.add_item(select3)
+                                await interaction.response.edit_message(content=f"3", view=view_player2)
 
-                        elif puzzle[channe_id]['info']['player'] == 2:
-                            puzzle[channe_id]['info']['player'] = 3
-                            await interaction.response.edit_message(content=f"3")
+                            elif puzzle[channe_id]['info']['player'] == 3:
+                                puzzle[channe_id]['info']['player'] = 1
+                                view_player2.remove_item(select3)
+                                view_player2.add_item(select1)
+                                await interaction.response.edit_message(content=f"В комнате не было ничего особенного: просто пустая комната с картиной на стене, огромным буфетом и телевизором на тумбочке в углу.", view=view_player2)
 
-                        elif puzzle[channe_id]['info']['player'] == 3:
-                            puzzle[channe_id]['info']['player'] = 1
-                            await interaction.response.edit_message(content=f"1")
+                        elif interaction.data['custom_id'] == "L":
+                            if puzzle[channe_id]['info']['player'] == 1:
+                                puzzle[channe_id]['info']['player'] = 3
+                                view_player2.remove_item(select1)
+                                view_player2.add_item(select3)
+                                await interaction.response.edit_message(content=f"3", view=view_player2)
 
-                    elif interaction.data['custom_id'] == "L":
-                        if puzzle[channe_id]['info']['player'] == 1:
-                            puzzle[channe_id]['info']['player'] = 3
-                            await interaction.response.edit_message(content=f"3")
+                            elif puzzle[channe_id]['info']['player'] == 2:
+                                puzzle[channe_id]['info']['player'] = 1
+                                view_player2.remove_item(select2)
+                                view_player2.add_item(select1)
+                                await interaction.response.edit_message(content=f"В комнате не было ничего особенного: просто пустая комната с картиной на стене, огромным буфетом и телевизором на тумбочке в углу.", view=view_player2)
 
-                        elif puzzle[channe_id]['info']['player'] == 2:
-                            puzzle[channe_id]['info']['player'] = 1
-                            await interaction.response.edit_message(content=f"1")
+                            elif puzzle[channe_id]['info']['player'] == 3:
+                                puzzle[channe_id]['info']['player'] = 2
+                                view_player2.remove_item(select3)
+                                view_player2.add_item(select2)
+                                await interaction.response.edit_message(content=f"Обернувшись, я увидел довольно похожую картину: старый телефон, по которому общаюсь с тобой, и какую-то странную дверь, видимо, закрытую.", view=view_player2)
 
-                        elif puzzle[channe_id]['info']['player'] == 3:
-                            puzzle[channe_id]['info']['player'] = 2
-                            await interaction.response.edit_message(content=f"2")
+                        elif interaction.data['custom_id'] == "item":
+                            item = "" 
+                            if puzzle[channe_id]['players'][player_2]['item'] == []:
+                                item += "*пусто*\n" 
+                            else:
+                                for items in puzzle[channe_id]['players'][player_2]['item']:
+                                    item += f"*{items}*\n"
+                                
+                            view_player2.clear_items()
+                            view_player2.add_item(button_N)
+                            await interaction.response.edit_message(content=f"Ваши предметы:\n\n{item}.", view=view_player2)
 
-                    elif interaction.data['custom_id'] == "B":
-                        pass
+                        elif interaction.data['custom_id'] == "N":
+                            view_player2.clear_items()
+                            view_player2.add_item(button_L)
+                            view_player2.add_item(button_item)
+                            view_player2.add_item(button_R)
+                            
+                            if puzzle[channe_id]['info']['player'] == 1:
+                                view_player2.add_item(select1)
+                                await interaction.response.edit_message(content=f"В комнате не было ничего особенного: просто пустая комната с картиной на стене, огромным буфетом и телевизором на тумбочке в углу.", view=view_player2)
 
-                    elif interaction.data['custom_id'] == "":
-                        pass
+                            elif puzzle[channe_id]['info']['player'] == 2:
+                                view_player2.add_item(select2)
+                                await interaction.response.edit_message(content=f"Обернувшись, я увидел довольно похожую картину: старый телефон, по которому общаюсь с тобой, и какую-то странную дверь, видимо, закрытую.", view=view_player2)
 
-                    elif interaction.data['custom_id'] == "":
-                        pass
+                            elif puzzle[channe_id]['info']['player'] == 3:
+                                view_player2.add_item(select3)
+                                await interaction.response.edit_message(content=f"3", view=view_player2)                    
 
+                    else:
+                        ##### обще
+                        if interaction.data['values'][0] == "Картина":
+                            if puzzle[channe_id]['info']['player'] == 1:
+                                view_player2.clear_items()
+                                view_player2.add_item(button_N)
+                                await interaction.response.edit_message(content=f"Хм, интересная картина, но что-то казалось не так: какие-то (символи) символы вообще не вписывались в общую композицию.", view=view_player2)
+
+                            elif puzzle[channe_id]['info']['player'] == 2:
+                                view_player2.clear_items()
+                                view_player2.add_item(button_N)                               
+                                await interaction.response.edit_message(content=f"Эта картина точь-в-точь как первая, но здесь (символи) символы совершенно другие. Странно.", view=view_player2)
+
+                            elif puzzle[channe_id]['info']['player'] == 3:
+                                view_player2.clear_items()
+                                view_player2.add_item(button_N)                                
+                                await interaction.response.edit_message(content=f"А на этой вообще ничего нет, только белый лист бумаги. Что же это может означать? Хотя нет, в углу присутствуют два (символи) символа.", view=view_player2)
+                    
+                        ##### комната 1
+                        elif interaction.data['values'][0] == "буфет":
+                            view_player2.clear_items()
+                            view_player2.add_item(button_N)
+                            if puzzle[channe_id]['home']['буфет']:
+                                view_player2.add_item(button1)
+                                await interaction.response.edit_message(content=f"Приблизившись к огромному буфету, я даже не ожидал, что открою его, но желание узнать, что внутри, было сильнее.", view=view_player2)
+                            else:
+                                await interaction.response.edit_message(content=f"Снова вернувшись к буфету, я ничего нового не обнаружил — просто пыльный буфет, которому, вероятно, не меньше 100 лет. Думаю, нужно искать в другом месте.", view=view_player2)
+
+                        elif interaction.data['values'][0] == "тумбочка":
+                            view_player2.clear_items()
+                            view_player2.add_item(button2)
+                            view_player2.add_item(button3)
+                            view_player2.add_item(button4)
+                            view_player2.add_item(button_N)
+                            await interaction.response.edit_message(content=f"сценарий буфета", view=view_player2)
+                            
+
+
+                        elif interaction.data['values'][0] == "буфет11":
+                            view_player2.clear_items()
+                            view_player2.add_item(button_N)
+
+
+                        ##### комната 2
+                        elif interaction.data['values'][0] == "":
+                            pass
+
+                        ##### комната 3
+                        elif interaction.data['values'][0] == "":
+                            pass
+
+                ##### кнопки меню
                 button_R = Button(emoji="➡️", style=discord.ButtonStyle.blurple, custom_id="R")
-                button_B = Button(emoji="🇧", style=discord.ButtonStyle.blurple, custom_id="B")
+                button_item = Button(emoji="🎒", style=discord.ButtonStyle.blurple, custom_id="item")
                 button_L = Button(emoji="⬅️", style=discord.ButtonStyle.blurple, custom_id="L")
-                options = [discord.SelectOption(label="hello")]
+                button_N = Button(emoji="⬇️", style=discord.ButtonStyle.blurple, custom_id="N")
 
-                select = discord.ui.Select(
+                ##### кнопки действия
+                button1 = Button(label="открыть буфет", style=discord.ButtonStyle.green, custom_id="буфет1")
+                button2 = Button(emoji="1️⃣", style=discord.ButtonStyle.blurple, custom_id="тумбочка1")
+                button3 = Button(emoji="2️⃣", style=discord.ButtonStyle.blurple, custom_id="тумбочка2")
+                button4 = Button(emoji="3️⃣", style=discord.ButtonStyle.blurple, custom_id="тумбочка3")
+                button5 = Button(label="осмотреть шкатулку", style=discord.ButtonStyle.green, custom_id="тумбочка11")
+                # button = Button(emoji="", style= , custom_id="")
+
+                ##### кнопки кода для шкатулки
+                button_caskets1 = Button(emoji="⬆️", style=discord.ButtonStyle.blurple, custom_id="caskets1")
+                button_caskets2 = Button(emoji="⬅️", style=discord.ButtonStyle.blurple, custom_id="caskets2", row=2)
+                button_caskets3 = Button(emoji="⬇️", style=discord.ButtonStyle.blurple, custom_id="caskets3", row=2)
+                button_caskets4 = Button(emoji="➡️", style=discord.ButtonStyle.blurple, custom_id="caskets4", row=2)
+                button_caskets5 = Button(emoji="☑️", style=discord.ButtonStyle.green, custom_id="caskets5")
+                
+
+                ##### каталоги
+                options1 = [
+                    discord.SelectOption(label="Картина"),
+                    discord.SelectOption(label="буфет"),
+                    discord.SelectOption(label="тумбочка"),
+                    discord.SelectOption(label="телевизор")
+                    ] # 2.5/4
+                options2 = [
+                    discord.SelectOption(label="Картина"),
+                    discord.SelectOption(label="Закрытая дверь"),
+                    discord.SelectOption(label="Телефон")
+                    ] # 1/3
+                options3 = [
+                    discord.SelectOption(label="Картина"),
+                    discord.SelectOption(label="старые часи"),
+                    discord.SelectOption(label="ящики")
+                    ] # 1/3
+
+                select1 = discord.ui.Select(
                         placeholder="выберите предмет",
                         min_values=1,
                         max_values=1,
-                        options=options
+                        options=options1
+                                            )
+                select2 = discord.ui.Select(
+                        placeholder="выберите предмет",
+                        min_values=1,
+                        max_values=1,
+                        options=options2
+                                            )
+                select3 = discord.ui.Select(
+                        placeholder="выберите предмет",
+                        min_values=1,
+                        max_values=1,
+                        options=options3
                                             )
                 
                 button_R.callback = Puzzle1
-                button_B.callback = Puzzle1
+                button_item.callback = Puzzle1
                 button_L.callback = Puzzle1
-                select.callback = Puzzle1
+                button_N.callback = Puzzle1
+                select1.callback = Puzzle1
+                select2.callback = Puzzle1
+                select3.callback = Puzzle1
+                
+                button1.callback = Puzzle2
+                button2.callback = Puzzle2
+                button3.callback = Puzzle2
+                button4.callback = Puzzle2
+                button5.callback = Puzzle2
+
+                button_caskets1.callback = Puzzle2
+                button_caskets2.callback = Puzzle2
+                button_caskets3.callback = Puzzle2
+                button_caskets4.callback = Puzzle2
+                button_caskets5.callback = Puzzle2
 
                 view_player2 = View(timeout=None)
                 view_player2.add_item(button_L)
-                # view_player2.add_item(button_B)
+                view_player2.add_item(button_item)
                 view_player2.add_item(button_R)
-                view_player2.add_item(select)
-
-                await interaction.response.send_message(f"1", ephemeral=True, view=view_player2)
-
+                
         
-        button_start = Button(emoji=f"▶️", style=discord.ButtonStyle.blurple)
+                if puzzle[channe_id]['info']['player'] == 1:
+                    view_player2.add_item(select1)
+                    if interaction.data['custom_id'] == "start":
+                        await interaction.response.send_message(f"В комнате не было ничего особенного: просто пустая комната с картиной на стене, огромным буфетом и телевизором на тумбочке в углу.", ephemeral=True, view=view_player2)
+                    else:
+                        await interaction.response.edit_message(content=f"В комнате не было ничего особенного: просто пустая комната с картиной на стене, огромным буфетом и телевизором на тумбочке в углу.", view=view_player2)
+
+                elif puzzle[channe_id]['info']['player'] == 2:
+                    view_player2.add_item(select2)
+                    if interaction.data['custom_id'] == "start":
+                        await interaction.response.send_message(f"Обернувшись, я увидел довольно похожую картину: старый телефон, по которому общаюсь с тобой, и какую-то странную дверь, видимо, закрытую.", ephemeral=True, view=view_player2)
+                    else:
+                        await interaction.response.edit_message(content=f"Обернувшись, я увидел довольно похожую картину: старый телефон, по которому общаюсь с тобой, и какую-то странную дверь, видимо, закрытую.", view=view_player2)
+
+                elif puzzle[channe_id]['info']['player'] == 3:
+                    view_player2.add_item(select3)
+                    if interaction.data['custom_id'] == "start":
+                        await interaction.response.send_message(f"В темноте была видна какая-то картина, старые часы, будто пришедшие из 50-х годов, и несколько ящиков, стоящих друг на друге.", ephemeral=True, view=view_player2)
+                    else:
+                        await interaction.response.edit_message(content=f"В темноте была видна какая-то картина, старые часы, будто пришедшие из 50-х годов, и несколько ящиков, стоящих друг на друге.", view=view_player2)
+                    
+        
+        button_start = Button(emoji=f"▶️", style=discord.ButtonStyle.blurple, custom_id="start")
         button_start.callback = chat
         
         view_start = View(timeout=None)
@@ -3593,13 +3875,19 @@ class fun(commands.Cog):
             if len(puzzle[channe_id]['players']) > 1:
                 await interaction.response.send_message("комната занята", ephemeral=True)
             else:
-                puzzle[channe_id]['players'][member] = {"point": 0}
+                puzzle[channe_id]['players'][member] = {"point": 0, "item": []}
                 await interaction.response.send_message("вы вошли в комнату", ephemeral=True)
                 add_pley_button.disabled = True
                 start_button.disabled = False
                 await interaction.followup.edit_message(content=f"{tekst.Puzzle}\n2 Игроков в ожидании", message_id=interaction1, view=view)
         else:
-            puzzle[channe_id] = {'players': {member: {"point": 0}}, "info": {"player": None, "id1": None, "id2": None}}
+            puzzle[channe_id] = {
+                'players': {member: {"point": 0, "item": []}},
+                "info": {"player": None, "id1": None, "id2": None},
+                "home": {"буфет": True, "тумбочка1": True, "тумбочка2": True},
+                "kod": {"тумбочка1": 0, "тумбочка2": 0, "тумбочка3": 0, "тумбочка4": 0, "тумбочка": 1}
+                }
+            
             await interaction.response.send_message("вы создали комнату", ephemeral=True)
             await interaction.followup.edit_message(content=f"{tekst.Puzzle}\n1 Игрок в ожидании", message_id=interaction1)
 
