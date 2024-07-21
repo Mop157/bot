@@ -87,6 +87,5 @@ hello = {"he": {11: 1, 22: 0, 33: 0, 44: 0}}
 yees = []
 # for k in text.text1:
 
-yees.append("hello, he1")
-
-print(yees)
+for p in range(1, 7):
+     print(p)

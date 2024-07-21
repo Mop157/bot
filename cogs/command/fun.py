@@ -3490,17 +3490,16 @@ class fun(commands.Cog):
         # puzzle[channe_id]['info']['id1'] = id1.id
         # puzzle[channe_id]['info']['id2'] = id2.id
         puzzle[channe_id]['info']['player'] = 1
-        caskets = ["1", "2", "3", "4", "5"]
+        box1 = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        box2 = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        box3 = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        caskets = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        clock1 = ["0", "1", "2"]
+        clock2 = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        clock3 = ["0", "1", "2", "3", "4", "5", "6"]
+        clock4 = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
-        def Puzzle1():
-            pass
-
-        def Puzzle2():
-            pass
-
-        def Puzzle3():
-            pass
-
+        
         async def chat(interaction: discord.Interaction):
             if interaction.user.id not in puzzle[channe_id]['players']:
                 await interaction.response.send_message("комната занята", ephemeral=True)
@@ -3525,32 +3524,31 @@ class fun(commands.Cog):
                         view_player2.clear_items()
                         view_player2.add_item(button_N)
                         if puzzle[channe_id]['home']['тумбочка1'] == False:
-                            await interaction.response.edit_message(content=f"сценарий пустой шкатулки", view=view_player2)
+                            await interaction.response.edit_message(content=f"Вернувшись сюда снова, я ничего нового не заметил: та же шкатулка и всё то же.", view=view_player2)
                         else:
                             view_player2.add_item(button5)
-                            await interaction.response.edit_message(content=f"сценарий шкатулки", view=view_player2)
+                            await interaction.response.edit_message(content=f"Отодвинув первую шухляду на себя, я заметил странную шкатулку. Попытавшись взять её с собой, я понял, что она намертво приделана. На самой шкатулке были цифры — возможно, это код. Нужно разобраться.", view=view_player2)
 
                     elif interaction.data['custom_id'] == "тумбочка2":
                         view_player2.clear_items()
                         view_player2.add_item(button_N)
                         if puzzle[channe_id]['home']['тумбочка2'] == False:
-                            await interaction.response.edit_message(content=f"сценарий пустой тумбочки", view=view_player2)
+                            await interaction.response.edit_message(content=f"Снова вернувшись сюда, я ничего нового не заметил: пустая шухляда и всё.", view=view_player2)
                         else:
                             if "ключ" in puzzle[channe_id]['players'][player_2]['item']:
                                 puzzle[channe_id]['players'][player_2]['item'].remove("ключ")
                                 puzzle[channe_id]['players'][player_2]['item'].append("изолента")
                                 puzzle[channe_id]['home']['тумбочка2'] = False
-                                await interaction.response.edit_message(content=f"сценарий получения изоленты", view=view_player2)
+                                await interaction.response.edit_message(content=f"Открыв её, я нашёл только изоленту. Ну ничего, может, пригодится где-то.", view=view_player2)
                             else:
-                                await interaction.response.edit_message(content=f"сценарий закритой тумбочки", view=view_player2)
+                                await interaction.response.edit_message(content=f"Осмотрев другую шухляду, я обнаружил, что она закрыта на замок. Возможно, сначала нужно найти ключ от неё.", view=view_player2)
 
                     elif interaction.data['custom_id'] == "тумбочка3":
                         view_player2.clear_items()
                         view_player2.add_item(button_N)
-                        await interaction.response.edit_message(content=f"V", view=view_player2)
+                        await interaction.response.edit_message(content=f"Отодвинув третью шухляду на себя, я обнаружил какой-то знак, похожий на **V**. Что это может означать?", view=view_player2)
 
                     elif interaction.data['custom_id'] == "тумбочка11":
-                        puzzle[channe_id]['home']['буфет'] = False
                         view_player2.clear_items()
                         view_player2.add_item(button_N)
                         view_player2.add_item(button_caskets1)
@@ -3558,6 +3556,7 @@ class fun(commands.Cog):
                         view_player2.add_item(button_caskets2)
                         view_player2.add_item(button_caskets3)
                         view_player2.add_item(button_caskets4)
+                        puzzle[channe_id]['kod']['kod'] = 1
                         await interaction.response.edit_message(content=f"""
 |   ︿    ︿ {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] else " "} ︿   {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка3']] in ["2", "3", "4", "5"] else " "}︿
 | {">" if puzzle[channe_id]['kod']['тумбочка'] == 1 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка1']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 2 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка2']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 3 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка3']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 4 else "   "} {caskets[puzzle[channe_id]['kod']['тумбочка4']]}
@@ -3566,59 +3565,377 @@ class fun(commands.Cog):
 
                     elif interaction.data['custom_id'] in ["caskets1", "caskets2", "caskets3", "caskets4", "caskets5"]:
                         if interaction.data['custom_id'] == "caskets1":
-                            if puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] == 4:
-                                puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] = 0
-                            else:
-                                puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] += 1
+                            if puzzle[channe_id]['kod']['kod'] == 1:
+                                if puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] == 9:
+                                    puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] = 0
+                                else:
+                                    puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] += 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 2:
+                                if puzzle[channe_id]['kod']['часи'] == 1:
+                                    if puzzle[channe_id]['kod']["часи1"] == 2:
+                                        puzzle[channe_id]['kod']["часи1"] = 0
+                                    else:
+                                        if puzzle[channe_id]['kod']["часи1"] == 1 and puzzle[channe_id]['kod']["часи2"] > 4:
+                                            puzzle[channe_id]['kod']["часи1"] = 0
+                                        else:
+                                            puzzle[channe_id]['kod']["часи1"] += 1
+                                
+                                elif puzzle[channe_id]['kod']['часи'] == 2:
+                                    if puzzle[channe_id]['kod']["часи2"] == 9:
+                                        puzzle[channe_id]['kod']["часи2"] = 0
+                                    else:
+                                        if puzzle[channe_id]['kod']["часи1"] == 2 and puzzle[channe_id]['kod']["часи2"] == 4:
+                                            puzzle[channe_id]['kod']["часи2"] = 0
+                                        else:
+                                            puzzle[channe_id]['kod']["часи2"] += 1
+
+                                elif puzzle[channe_id]['kod']['часи'] == 3:
+                                    if puzzle[channe_id]['kod']["часи3"] == 6:
+                                        puzzle[channe_id]['kod']["часи3"] = 0
+                                    else:
+                                        if puzzle[channe_id]['kod']["часи3"] == 5 and puzzle[channe_id]['kod']["часи4"] > 0:
+                                            puzzle[channe_id]['kod']["часи3"] = 0
+                                        else:
+                                            puzzle[channe_id]['kod']["часи3"] += 1
+
+                                elif puzzle[channe_id]['kod']['часи'] == 4:
+                                    if puzzle[channe_id]['kod']["часи4"] == 9:
+                                        puzzle[channe_id]['kod']["часи4"] = 0
+                                    else:
+                                        if puzzle[channe_id]['kod']["часи3"] == 6:
+                                            puzzle[channe_id]['kod']["часи3"] = 5
+                                        puzzle[channe_id]['kod']["часи4"] += 1
+                            
+                            elif puzzle[channe_id]['kod']['kod'] == 3:
+                                if puzzle[channe_id]['kod'][f"1ящик{puzzle[channe_id]['kod']['1ящик']}"] == 9:
+                                    puzzle[channe_id]['kod'][f"1ящик{puzzle[channe_id]['kod']['1ящик']}"] = 0
+                                else:
+                                    puzzle[channe_id]['kod'][f"1ящик{puzzle[channe_id]['kod']['1ящик']}"] += 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 4:
+                                if puzzle[channe_id]['kod'][f"2ящик{puzzle[channe_id]['kod']['2ящик']}"] == 9:
+                                    puzzle[channe_id]['kod'][f"2ящик{puzzle[channe_id]['kod']['2ящик']}"] = 0
+                                else:
+                                    puzzle[channe_id]['kod'][f"2ящик{puzzle[channe_id]['kod']['2ящик']}"] += 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 5:
+                                if puzzle[channe_id]['kod'][f"3ящик{puzzle[channe_id]['kod']['3ящик']}"] == 9:
+                                    puzzle[channe_id]['kod'][f"3ящик{puzzle[channe_id]['kod']['3ящик']}"] = 0
+                                else:
+                                    puzzle[channe_id]['kod'][f"3ящик{puzzle[channe_id]['kod']['3ящик']}"] += 1
 
                         elif interaction.data['custom_id'] == "caskets3":
-                            if puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] == 0:
-                                puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] = 4
-                            else:
-                                puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] -= 1
+                            if puzzle[channe_id]['kod']['kod'] == 1:
+                                if puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] == 0:
+                                    puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] = 9
+                                else:
+                                    puzzle[channe_id]['kod'][f"тумбочка{puzzle[channe_id]['kod']['тумбочка']}"] -= 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 2:
+                                if puzzle[channe_id]['kod']['часи'] == 1:
+                                    if puzzle[channe_id]['kod']["часи1"] == 0:
+                                        if puzzle[channe_id]['kod']["часи2"] > 4:
+                                            puzzle[channe_id]['kod']["часи1"] = 1
+                                        else:
+                                            puzzle[channe_id]['kod']["часи1"] = 2
+                                    else:
+                                        puzzle[channe_id]['kod']["часи1"] -= 1
+                                
+                                elif puzzle[channe_id]['kod']['часи'] == 2:
+                                    if puzzle[channe_id]['kod']["часи2"] == 0:
+                                        if puzzle[channe_id]['kod']["часи1"] == 2:
+                                            puzzle[channe_id]['kod']["часи2"] = 4
+                                        else:
+                                            puzzle[channe_id]['kod']["часи2"] = 9
+                                    else:
+                                        puzzle[channe_id]['kod']["часи2"] -= 1
+
+                                elif puzzle[channe_id]['kod']['часи'] == 3:
+                                    if puzzle[channe_id]['kod']["часи3"] == 0:
+                                        if puzzle[channe_id]['kod']["часи4"] > 0:
+                                            puzzle[channe_id]['kod']["часи3"] = 5
+                                        else:
+                                            puzzle[channe_id]['kod']["часи3"] = 6
+                                    else:
+                                        puzzle[channe_id]['kod']["часи3"] -= 1
+
+                                elif puzzle[channe_id]['kod']['часи'] == 4:
+                                    if puzzle[channe_id]['kod']["часи4"] == 0:
+                                        if puzzle[channe_id]['kod']["часи3"] == 6:
+                                            puzzle[channe_id]['kod']["часи3"] = 5
+                                        puzzle[channe_id]['kod']["часи4"] = 9
+                                    else:
+                                        puzzle[channe_id]['kod']["часи4"] -= 1
+                            
+                            elif puzzle[channe_id]['kod']['kod'] == 3:
+                                if puzzle[channe_id]['kod'][f"1ящик{puzzle[channe_id]['kod']['1ящик']}"] == 0:
+                                    puzzle[channe_id]['kod'][f"1ящик{puzzle[channe_id]['kod']['1ящик']}"] = 9
+                                else:
+                                    puzzle[channe_id]['kod'][f"1ящик{puzzle[channe_id]['kod']['1ящик']}"] -= 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 4:
+                                if puzzle[channe_id]['kod'][f"2ящик{puzzle[channe_id]['kod']['2ящик']}"] == 0:
+                                    puzzle[channe_id]['kod'][f"2ящик{puzzle[channe_id]['kod']['2ящик']}"] = 9
+                                else:
+                                    puzzle[channe_id]['kod'][f"2ящик{puzzle[channe_id]['kod']['2ящик']}"] -= 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 5:
+                                if puzzle[channe_id]['kod'][f"3ящик{puzzle[channe_id]['kod']['3ящик']}"] == 0:
+                                    puzzle[channe_id]['kod'][f"3ящик{puzzle[channe_id]['kod']['3ящик']}"] = 9
+                                else:
+                                    puzzle[channe_id]['kod'][f"3ящик{puzzle[channe_id]['kod']['3ящик']}"] -= 1
 
                         elif interaction.data['custom_id'] == "caskets2":
-                            if puzzle[channe_id]['kod']['тумбочка'] == 1:
-                                puzzle[channe_id]['kod']['тумбочка'] = 4
-                            else:
-                                puzzle[channe_id]['kod']['тумбочка'] -= 1
+                            if puzzle[channe_id]['kod']['kod'] == 1:
+                                if puzzle[channe_id]['kod']['тумбочка'] == 1:
+                                    puzzle[channe_id]['kod']['тумбочка'] = 4
+                                else:
+                                    puzzle[channe_id]['kod']['тумбочка'] -= 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 2:
+                                if puzzle[channe_id]['kod']['часи'] == 1:
+                                    puzzle[channe_id]['kod']['часи'] = 4
+                                else:
+                                    puzzle[channe_id]['kod']['часи'] -= 1
+                            
+                            elif puzzle[channe_id]['kod']['kod'] == 3:
+                                if puzzle[channe_id]['kod']['1ящик'] == 1:
+                                    puzzle[channe_id]['kod']['1ящик'] = 6
+                                else:
+                                    puzzle[channe_id]['kod']['1ящик'] -= 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 4:
+                                if puzzle[channe_id]['kod']['2ящик'] == 1:
+                                    puzzle[channe_id]['kod']['2ящик'] = 6
+                                else:
+                                    puzzle[channe_id]['kod']['2ящик'] -= 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 5:
+                                if puzzle[channe_id]['kod']['3ящик'] == 1:
+                                    puzzle[channe_id]['kod']['3ящик'] = 6
+                                else:
+                                    puzzle[channe_id]['kod']['3ящик'] -= 1
                         
                         elif interaction.data['custom_id'] == "caskets4":
-                            if puzzle[channe_id]['kod']['тумбочка'] == 4:
-                                puzzle[channe_id]['kod']['тумбочка'] = 1
-                            else:
-                                puzzle[channe_id]['kod']['тумбочка'] += 1
+                            if puzzle[channe_id]['kod']['kod'] == 1:
+                                if puzzle[channe_id]['kod']['тумбочка'] == 4:
+                                    puzzle[channe_id]['kod']['тумбочка'] = 1
+                                else:
+                                    puzzle[channe_id]['kod']['тумбочка'] += 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 2:
+                                if puzzle[channe_id]['kod']['часи'] == 4:
+                                    puzzle[channe_id]['kod']['часи'] = 1
+                                else:
+                                    puzzle[channe_id]['kod']['часи'] += 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 3:
+                                if puzzle[channe_id]['kod']['1ящик'] == 6:
+                                    puzzle[channe_id]['kod']['1ящик'] = 1
+                                else:
+                                    puzzle[channe_id]['kod']['1ящик'] += 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 4:
+                                if puzzle[channe_id]['kod']['2ящик'] == 6:
+                                    puzzle[channe_id]['kod']['2ящик'] = 1
+                                else:
+                                    puzzle[channe_id]['kod']['2ящик'] += 1
+
+                            elif puzzle[channe_id]['kod']['kod'] == 5:
+                                if puzzle[channe_id]['kod']['3ящик'] == 6:
+                                    puzzle[channe_id]['kod']['3ящик'] = 1
+                                else:
+                                    puzzle[channe_id]['kod']['3ящик'] += 1
 
                         elif interaction.data['custom_id'] == "caskets5":
-                            if caskets[puzzle[channe_id]['kod']['тумбочка1']] == "5" and caskets[puzzle[channe_id]['kod']['тумбочка2']] == "1" and caskets[puzzle[channe_id]['kod']['тумбочка3']] == "3" and caskets[puzzle[channe_id]['kod']['тумбочка4']] == "2":
+                            if puzzle[channe_id]['kod']['kod'] == 1:
+                                if caskets[puzzle[channe_id]['kod']['тумбочка1']] == "3" and \
+                                    caskets[puzzle[channe_id]['kod']['тумбочка2']] == "5" and \
+                                    caskets[puzzle[channe_id]['kod']['тумбочка3']] == "1" and \
+                                    caskets[puzzle[channe_id]['kod']['тумбочка4']] == "7":
+                                    await interaction.response.send_message("gooot!!!", ephemeral=True)
+                                    return
+                                else:
+                                    await interaction.response.send_message("цифры оказались в неправильном порядке.", ephemeral=True)
+                                    return
+                                
+                            elif puzzle[channe_id]['kod']['kod'] == 2:
+                                if puzzle[channe_id]['home']['старые час']:
+                                    await interaction.response.send_message("Хммм... ничего не происходит.")
+                                    return
+                                else:
+                                    if clock1[puzzle[channe_id]['kod']['часи1']] == "1" and \
+                                        clock2[puzzle[channe_id]['kod']['часи2']] == "0" and \
+                                        clock3[puzzle[channe_id]['kod']['часи3']] == "0" and \
+                                        clock4[puzzle[channe_id]['kod']['часи4']] == "5":
+                                        puzzle[channe_id]['home']['телевизор2'] == True
+                                        puzzle[channe_id]['home']['старые час'] == True
+                                        puzzle[channe_id]['players'][player_2]['item'].append("шештерня")
+                                        await interaction.response.send_message("Поставив время на 10:05, часы открылись, и внутри я обнаружил шестерёнку. Взяв её, я закрыл часы обратно.")
+                                        return
+                                    else:
+                                        await interaction.response.send_message(f"Я успешно поставил время на {clock1[puzzle[channe_id]['kod']['часи1']]}{clock2[puzzle[channe_id]['kod']['часи2']]}:{clock3[puzzle[channe_id]['kod']['часи3']]}{clock4[puzzle[channe_id]['kod']['часи4']]}.")
+                                        return
+
+                            elif puzzle[channe_id]['kod']['kod'] == 3:
+                                if box1[puzzle[channe_id]['kod']['1ящик1']] == "5" and \
+                                    box1[puzzle[channe_id]['kod']['1ящик2']] == "9" and \
+                                    box1[puzzle[channe_id]['kod']['1ящик3']] == "7" and \
+                                    box1[puzzle[channe_id]['kod']['1ящик4']] == "1" and \
+                                    box1[puzzle[channe_id]['kod']['1ящик5']] == "8" and \
+                                    box1[puzzle[channe_id]['kod']['1ящик6']] == "3":
+                                    puzzle[channe_id]['home']['1ящик'] = False
+                                    puzzle[channe_id]['players'][player_2]['item'].append("ключ")
+                                    puzzle[channe_id]['players'][player_2]['item'].append("лист бумаги")
+                                    await interaction.response.send_message("gooot!!!", ephemeral=True)
+                                    return
+                                else:
+                                    await interaction.response.send_message("gooot!!!", ephemeral=True)
+                                    return
+
+                            elif puzzle[channe_id]['kod']['kod'] == 4:
+                                if box2[puzzle[channe_id]['kod']['2ящик1']] == "1" and \
+                                    box2[puzzle[channe_id]['kod']['2ящик2']] == "3" and \
+                                    box2[puzzle[channe_id]['kod']['2ящик3']] == "5" and \
+                                    box2[puzzle[channe_id]['kod']['2ящик4']] == "7" and \
+                                    box2[puzzle[channe_id]['kod']['2ящик5']] == "8" and \
+                                    box2[puzzle[channe_id]['kod']['2ящик6']] == "9":
+                                    puzzle[channe_id]['home']['2ящик'] = False
+                                    await interaction.response.send_message("X", ephemeral=True)
+                                    return                 
+                                else:
+                                    await interaction.response.send_message("gooot!!!", ephemeral=True)
+                                    return
+
+                            elif puzzle[channe_id]['kod']['kod'] == 5:
+                                puzzle[channe_id]['home']['3ящик'] = False
                                 await interaction.response.send_message("gooot!!!", ephemeral=True)
                                 return
-                            else:
-                                await interaction.response.send_message("not!!!!", ephemeral=True)
-                                return
+                                
                             
-                        await interaction.response.edit_message(content=f"""
+                        if puzzle[channe_id]['kod']['kod'] == 1:
+                            await interaction.response.edit_message(content=f"""
 |   ︿    ︿ {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] else " "} ︿   {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка3']] in ["2", "3", "4", "5"] else " "}︿
 | {">" if puzzle[channe_id]['kod']['тумбочка'] == 1 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка1']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 2 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка2']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 3 else "  "} {caskets[puzzle[channe_id]['kod']['тумбочка3']]}   {">" if puzzle[channe_id]['kod']['тумбочка'] == 4 else "   "} {caskets[puzzle[channe_id]['kod']['тумбочка4']]}
 |   ﹀    ﹀ {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] else " "} ﹀   {"  " if caskets[puzzle[channe_id]['kod']['тумбочка1']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка2']] in ["2", "3", "4", "5"] and caskets[puzzle[channe_id]['kod']['тумбочка3']] in ["2", "3", "4", "5"] else " "}﹀                                                       
 """)
-                        return
+                            return
+                        
+                        elif puzzle[channe_id]['kod']['kod'] == 2:
+                            await interaction.response.edit_message(content=f"""
+{f"__{clock1[puzzle[channe_id]['kod']['часи1']]}__" if puzzle[channe_id]['kod']['часи'] == 1 else clock1[puzzle[channe_id]['kod']['часи1']]}{f"__{clock2[puzzle[channe_id]['kod']['часи2']]}__" if puzzle[channe_id]['kod']['часи'] == 2 else clock2[puzzle[channe_id]['kod']['часи2']]}:{f"__{clock3[puzzle[channe_id]['kod']['часи3']]}__" if puzzle[channe_id]['kod']['часи'] == 3 else clock3[puzzle[channe_id]['kod']['часи3']]}{f"__{clock4[puzzle[channe_id]['kod']['часи4']]}__" if puzzle[channe_id]['kod']['часи'] == 4 else clock4[puzzle[channe_id]['kod']['часи4']]}
+""")
+                            return
+                        
+                        elif puzzle[channe_id]['kod']['kod'] == 3:
+                            games3 = ""
+                            for game3 in range(1, 7):
+                                games3 += f"{f">{box1[puzzle[channe_id]['kod'][f'1ящик{game3}']]}<" if puzzle[channe_id]['kod']['1ящик'] == game3 else box1[puzzle[channe_id]['kod'][f'1ящик{game3}']]}"
+                            await interaction.response.edit_message(content=f"""
+)--{games3}--(
+""")    
+                            return
+
+                        elif puzzle[channe_id]['kod']['kod'] == 4:
+                            games4 = ""
+                            for game4 in range(1, 7):
+                                games4 += f"{f">{box2[puzzle[channe_id]['kod'][f'2ящик{game4}']]}<" if puzzle[channe_id]['kod']['2ящик'] == game4 else box2[puzzle[channe_id]['kod'][f'2ящик{game4}']]}"
+                            await interaction.response.edit_message(content=f"""
+)--{games4}--(
+""") 
+                            return
+
+                        elif puzzle[channe_id]['kod']['kod'] == 5:
+                            games5 = ""
+                            for game5 in range(1, 7):
+                                games5 += f"{f">{box3[puzzle[channe_id]['kod'][f'3ящик{game5}']]}<" if puzzle[channe_id]['kod']['3ящик'] == game5 else box3[puzzle[channe_id]['kod'][f'3ящик{game5}']]}"
+                            await interaction.response.edit_message(content=f"""
+)--{games5}--(
+""")   
+                            return
                             
 
-                    elif interaction.data['custom_id'] == "телевизров":
+                    elif interaction.data['custom_id'] == "телевизор1":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)                        
+                        if "изолента" in puzzle[channe_id]['players'][player_2]['item']:
+                            puzzle[channe_id]['players'][player_2]['item'].remove("изолента")
+                            puzzle[channe_id]['home']['телевизор1'] = False
+                            await interaction.response.edit_message(content=f"Обмотав кабель изолентой, мне удалось его починить, но телевизор всё равно не заработал. **Время и до него дойдёт,** — подумал я, отходя от него.", view=view_player2)
+                        else:
+                            await interaction.response.edit_message(content=f"Мне нужно найти изоленту. Где же начать искать? Хммм...", view=view_player2)
+
+
+                    elif interaction.data['custom_id'] == "часи1":
                         view_player2.clear_items()
                         view_player2.add_item(button_N)
-                        if puzzle[channe_id]['home']['тумбочка2'] == False:
-                            await interaction.response.edit_message(content=f"сценарий пустой тумбочки", view=view_player2)
-                        else:
-                            if "ключ" in puzzle[channe_id]['players'][player_2]['item']:
-                                puzzle[channe_id]['players'][player_2]['item'].remove("ключ")
-                                puzzle[channe_id]['players'][player_2]['item'].append("изолента")
-                                puzzle[channe_id]['home']['тумбочка2'] = False
-                                await interaction.response.edit_message(content=f"сценарий получения изоленты", view=view_player2)
-                            else:
-                                await interaction.response.edit_message(content=f"сценарий закритой тумбочки", view=view_player2)
+                        view_player2.add_item(button_caskets1)
+                        view_player2.add_item(button_caskets5)
+                        view_player2.add_item(button_caskets2)
+                        view_player2.add_item(button_caskets3)
+                        view_player2.add_item(button_caskets4)
+                        puzzle[channe_id]['kod']['kod'] = 2
+                        await interaction.response.edit_message(content=f"""
+{f"__{clock1[puzzle[channe_id]['kod']['часи1']]}__" if puzzle[channe_id]['kod']['часи'] == 1 else clock1[puzzle[channe_id]['kod']['часи1']]}{f"__{clock2[puzzle[channe_id]['kod']['часи2']]}__" if puzzle[channe_id]['kod']['часи'] == 2 else clock2[puzzle[channe_id]['kod']['часи2']]}:{f"__{clock3[puzzle[channe_id]['kod']['часи3']]}__" if puzzle[channe_id]['kod']['часи'] == 3 else clock3[puzzle[channe_id]['kod']['часи3']]}{f"__{clock4[puzzle[channe_id]['kod']['часи4']]}__" if puzzle[channe_id]['kod']['часи'] == 4 else clock4[puzzle[channe_id]['kod']['часи4']]}
+""", view=view_player2)
 
+                    elif interaction.data['custom_id'] == "ящик1":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        if puzzle[channe_id]['home']['1ящик']:
+                            view_player2.add_item(button_caskets1)
+                            view_player2.add_item(button_caskets5)
+                            view_player2.add_item(button_caskets2)
+                            view_player2.add_item(button_caskets3)
+                            view_player2.add_item(button_caskets4)
+                            puzzle[channe_id]['kod']['kod'] = 3
+                            games3 = ""
+                            for game3 in range(1, 7):
+                                games3 += f"{f">{box1[puzzle[channe_id]['kod'][f'1ящик{game3}']]}<" if box1[puzzle[channe_id]['kod']['1ящик']] == game3 else box1[puzzle[channe_id]['kod'][f'1ящик{game3}']]}"
+                            await interaction.response.edit_message(content=f"""
+)--{games3}--(
+""", view=view_player2)
+                        else:                      
+                            await interaction.response.edit_message(content=f"1", view=view_player2)                       
+
+                    elif interaction.data['custom_id'] == "ящик2":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        if puzzle[channe_id]['home']['2ящик']:
+                            view_player2.add_item(button_caskets1)
+                            view_player2.add_item(button_caskets5)
+                            view_player2.add_item(button_caskets2)
+                            view_player2.add_item(button_caskets3)
+                            view_player2.add_item(button_caskets4)
+                            puzzle[channe_id]['kod']['kod'] = 4
+                            games4 = ""
+                            for game4 in range(1, 7):
+                                games4 += f"{f">{box2[puzzle[channe_id]['kod'][f'2ящик{game4}']]}<" if box2[puzzle[channe_id]['kod']['2ящик']] == game4 else box2[puzzle[channe_id]['kod'][f'2ящик{game4}']]}"
+                            await interaction.response.edit_message(content=f"""
+)--{games4}--(
+""", view=view_player2)
+                        else:                      
+                            await interaction.response.edit_message(content=f"1", view=view_player2)
+
+                    elif interaction.data['custom_id'] == "ящик3":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        if puzzle[channe_id]['home']['3ящик']:
+                            view_player2.add_item(button_caskets1)
+                            view_player2.add_item(button_caskets5)
+                            view_player2.add_item(button_caskets2)
+                            view_player2.add_item(button_caskets3)
+                            view_player2.add_item(button_caskets4)
+                            puzzle[channe_id]['kod']['kod'] = 5
+                            games5 = ""
+                            for game5 in range(1, 7):
+                                games5 += f"{f">{box3[puzzle[channe_id]['kod'][f'3ящик{game5}']]}<" if box3[puzzle[channe_id]['kod']['3ящик']] == game5 else box3[puzzle[channe_id]['kod'][f'3ящик{game5}']]}"
+                            await interaction.response.edit_message(content=f"""
+)--{games5}--(
+""", view=view_player2)
+                        else:                      
+                            await interaction.response.edit_message(content=f"1", view=view_player2)
 
                     elif interaction.data['custom_id'] == "тgdgd":
                         puzzle[channe_id]['home']['буфет'] = False
@@ -3640,7 +3957,7 @@ class fun(commands.Cog):
                                 puzzle[channe_id]['info']['player'] = 3
                                 view_player2.remove_item(select2)
                                 view_player2.add_item(select3)
-                                await interaction.response.edit_message(content=f"3", view=view_player2)
+                                await interaction.response.edit_message(content=f"В темноте была видна какая-то картина, старые часы, будто пришедшие из 50-х годов, и несколько ящиков, стоящих друг на друге.", view=view_player2)
 
                             elif puzzle[channe_id]['info']['player'] == 3:
                                 puzzle[channe_id]['info']['player'] = 1
@@ -3653,7 +3970,7 @@ class fun(commands.Cog):
                                 puzzle[channe_id]['info']['player'] = 3
                                 view_player2.remove_item(select1)
                                 view_player2.add_item(select3)
-                                await interaction.response.edit_message(content=f"3", view=view_player2)
+                                await interaction.response.edit_message(content=f"В темноте была видна какая-то картина, старые часы, будто пришедшие из 50-х годов, и несколько ящиков, стоящих друг на друге.", view=view_player2)
 
                             elif puzzle[channe_id]['info']['player'] == 2:
                                 puzzle[channe_id]['info']['player'] = 1
@@ -3695,7 +4012,7 @@ class fun(commands.Cog):
 
                             elif puzzle[channe_id]['info']['player'] == 3:
                                 view_player2.add_item(select3)
-                                await interaction.response.edit_message(content=f"3", view=view_player2)                    
+                                await interaction.response.edit_message(content=f"В темноте была видна какая-то картина, старые часы, будто пришедшие из 50-х годов, и несколько ящиков, стоящих друг на друге.", view=view_player2)                    
 
                     else:
                         ##### обще
@@ -3731,22 +4048,54 @@ class fun(commands.Cog):
                             view_player2.add_item(button3)
                             view_player2.add_item(button4)
                             view_player2.add_item(button_N)
-                            await interaction.response.edit_message(content=f"сценарий буфета", view=view_player2)
-                            
+                            await interaction.response.edit_message(content=f"Подойдя к тумбочке, я заметил телевизор, стоящий на ней. Но его я осмотрю позже; сначала нужно проверить саму тумбочку.", view=view_player2)
+             
+                        elif interaction.data['values'][0] == "телевизор":
+                            view_player2.clear_items()
+                            view_player2.add_item(button_N)
+                            if puzzle[channe_id]['home']['телевизор1']:
+                                view_player2.add_item(button6)
+                                await interaction.response.edit_message(content=f"Подойдя ближе к телевизору, я попробовал его включить, но ничего не вышло. Видимо, что-то с ним случилось, подумал я. Осмотрев телевизор, я заметил, что кабель был повреждён. Нужно найти изоленту.", view=view_player2)
+                            else:
+                                if puzzle[channe_id]['home']['телевизор2']:
+                                    await interaction.response.edit_message(content=f"2", view=view_player2)
+                                else:
+                                    await interaction.response.edit_message(content=f"Смотря на телевизор, я ничего не замечал: вроде работает, но ничего не показывает. Может, просто не его время.", view=view_player2)
 
+                        
+                        ##### комната 2
+                        elif interaction.data['values'][0] == "Телефон":
+                            view_player2.clear_items()
+                            view_player2.add_item(button_N)
+                            await interaction.response.edit_message(content=f"2", view=view_player2)
 
                         elif interaction.data['values'][0] == "буфет11":
                             view_player2.clear_items()
                             view_player2.add_item(button_N)
 
-
-                        ##### комната 2
-                        elif interaction.data['values'][0] == "":
-                            pass
-
                         ##### комната 3
-                        elif interaction.data['values'][0] == "":
-                            pass
+                        elif interaction.data['values'][0] == "старые часи":
+                            view_player2.clear_items()
+                            view_player2.add_item(button_N)
+                            if puzzle[channe_id]['home']['старые часи']:
+                                view_player2.add_item(button7)
+                                await interaction.response.edit_message(content=f"Хм... смотря на время {clock1[puzzle[channe_id]['kod']['часи1']]}{clock2[puzzle[channe_id]['kod']['часи2']]}:{clock3[puzzle[channe_id]['kod']['часи3']]}{clock4[puzzle[channe_id]['kod']['часи4']]}, я не могу понять, кто же всё это устроил?", view=view_player2)
+                                return
+                            if "годиная стрелка" in puzzle[channe_id]['players'][player_2]['item']:
+                                puzzle[channe_id]['players'][player_2]['item'].remove("годиная стрелка")
+                                view_player2.add_item(button7)
+                                puzzle[channe_id]['home']['старые часи'] = True
+                                await interaction.response.edit_message(content=f"Поставив часовую стрелку на своё место, я теперь имею доступ к часам. Но зачем мне это?", view=view_player2)
+                            else:
+                                await interaction.response.edit_message(content=f"Подойдя к старым часам, я посмотрел на время: 00:??. Видимо, часовая стрелка пропала. Нужно попытаться её найти — может, это ключ к выходу?", view=view_player2)
+                        
+                        elif interaction.data['values'][0] == "ящики":
+                            view_player2.clear_items()
+                            view_player2.add_item(button8)
+                            view_player2.add_item(button9)
+                            view_player2.add_item(button10)
+                            view_player2.add_item(button_N)
+                            await interaction.response.edit_message(content=f"1", view=view_player2)
 
                 ##### кнопки меню
                 button_R = Button(emoji="➡️", style=discord.ButtonStyle.blurple, custom_id="R")
@@ -3760,9 +4109,14 @@ class fun(commands.Cog):
                 button3 = Button(emoji="2️⃣", style=discord.ButtonStyle.blurple, custom_id="тумбочка2")
                 button4 = Button(emoji="3️⃣", style=discord.ButtonStyle.blurple, custom_id="тумбочка3")
                 button5 = Button(label="осмотреть шкатулку", style=discord.ButtonStyle.green, custom_id="тумбочка11")
+                button6 = Button(label="поченить телевизор", style=discord.ButtonStyle.green, custom_id="телевизор1")
+                button7 = Button(label="посмотреть часи", style=discord.ButtonStyle.green, custom_id="часи1")
+                button8 = Button(emoji="1️⃣", style=discord.ButtonStyle.blurple, custom_id="ящик1")
+                button9 = Button(emoji="2️⃣", style=discord.ButtonStyle.blurple, custom_id="ящик2")
+                button10 = Button(emoji="3️⃣", style=discord.ButtonStyle.blurple, custom_id="ящик3")
                 # button = Button(emoji="", style= , custom_id="")
 
-                ##### кнопки кода для шкатулки
+                ##### кнопки кода
                 button_caskets1 = Button(emoji="⬆️", style=discord.ButtonStyle.blurple, custom_id="caskets1")
                 button_caskets2 = Button(emoji="⬅️", style=discord.ButtonStyle.blurple, custom_id="caskets2", row=2)
                 button_caskets3 = Button(emoji="⬇️", style=discord.ButtonStyle.blurple, custom_id="caskets3", row=2)
@@ -3776,17 +4130,17 @@ class fun(commands.Cog):
                     discord.SelectOption(label="буфет"),
                     discord.SelectOption(label="тумбочка"),
                     discord.SelectOption(label="телевизор")
-                    ] # 2.5/4
+                    ] # 4/4
                 options2 = [
                     discord.SelectOption(label="Картина"),
                     discord.SelectOption(label="Закрытая дверь"),
                     discord.SelectOption(label="Телефон")
-                    ] # 1/3
+                    ] # 2/3
                 options3 = [
                     discord.SelectOption(label="Картина"),
                     discord.SelectOption(label="старые часи"),
                     discord.SelectOption(label="ящики")
-                    ] # 1/3
+                    ] # 2/3
 
                 select1 = discord.ui.Select(
                         placeholder="выберите предмет",
@@ -3820,6 +4174,11 @@ class fun(commands.Cog):
                 button3.callback = Puzzle2
                 button4.callback = Puzzle2
                 button5.callback = Puzzle2
+                button6.callback = Puzzle2
+                button7.callback = Puzzle2
+                button8.callback = Puzzle2
+                button9.callback = Puzzle2
+                button10.callback = Puzzle2
 
                 button_caskets1.callback = Puzzle2
                 button_caskets2.callback = Puzzle2
@@ -3884,8 +4243,16 @@ class fun(commands.Cog):
             puzzle[channe_id] = {
                 'players': {member: {"point": 0, "item": []}},
                 "info": {"player": None, "id1": None, "id2": None},
-                "home": {"буфет": True, "тумбочка1": True, "тумбочка2": True},
-                "kod": {"тумбочка1": 0, "тумбочка2": 0, "тумбочка3": 0, "тумбочка4": 0, "тумбочка": 1}
+                "home": {"буфет": True, "тумбочка1": True, "тумбочка2": True, "телевизор1": True, "телевизор2": True,
+                         "старые часи": False, "старые час": False, "1ящик": True, "2ящик": True, "3ящик": True
+                         },
+                "kod": {"kod": 0,
+                        "тумбочка1": 0, "тумбочка2": 0, "тумбочка3": 0, "тумбочка4": 0, "тумбочка": 1,
+                        "часи1": 0, "часи2": 0, "часи3": 0, "часи4": 0, "часи": 1,
+                        "1ящик1": 0, "1ящик2": 0, "1ящик3": 0, "1ящик4": 0, "1ящик5": 0, "1ящик6": 0, "1ящик": 1,
+                        "2ящик1": 0, "2ящик2": 0, "2ящик3": 0, "2ящик4": 0, "2ящик5": 0, "2ящик6": 0, "2ящик": 1,
+                        "3ящик1": 0, "3ящик2": 0, "3ящик3": 0, "3ящик4": 0, "3ящик5": 0, "3ящик6": 0, "3ящик": 1
+                    }
                 }
             
             await interaction.response.send_message("вы создали комнату", ephemeral=True)
