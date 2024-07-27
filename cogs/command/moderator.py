@@ -45,72 +45,70 @@ class moderator(commands.Cog):
     # Отправляем сообщение с View
     await ctx.send("\n\nSelect an option from the menu below:", view=view)
 
-  @app_commands.command(name="test", description="TEST")
-  async def ball(self, interaction: discord.Interaction):
-    
+  # @app_commands.command(name="test", description="TEST")
+  # async def ball(self, interaction: discord.Interaction):
+  
 
-    
+  #   async def pop1(interaction: discord.Interaction):
+  #           if interaction.data['custom_id'] == "1":
+  #               if l_values[f"l{l_values['l']}"] == 4:
+  #                   l_values[f"l{l_values['l']}"] = 0
+  #               else:
+  #                     l_values[f"l{l_values['l']}"] += 1
 
-    async def pop1(interaction: discord.Interaction):
-            if interaction.data['custom_id'] == "1":
-                if l_values[f"l{l_values['l']}"] == 4:
-                    l_values[f"l{l_values['l']}"] = 0
-                else:
-                      l_values[f"l{l_values['l']}"] += 1
+  #           elif interaction.data['custom_id'] == "3":
+  #               if l_values[f"l{l_values['l']}"] == 0:
+  #                   l_values[f"l{l_values['l']}"] = 4
+  #               else:
+  #                   l_values[f"l{l_values['l']}"] -= 1
 
-            elif interaction.data['custom_id'] == "3":
-                if l_values[f"l{l_values['l']}"] == 0:
-                    l_values[f"l{l_values['l']}"] = 4
-                else:
-                    l_values[f"l{l_values['l']}"] -= 1
-
-            elif interaction.data['custom_id'] == "2":
-               if l_values['l'] == 1:
-                  l_values['l'] = 4
-               else:
-                  l_values['l'] -= 1
+  #           elif interaction.data['custom_id'] == "2":
+  #              if l_values['l'] == 1:
+  #                 l_values['l'] = 4
+  #              else:
+  #                 l_values['l'] -= 1
             
-            elif interaction.data['custom_id'] == "4":
-               if l_values['l'] == 4:
-                  l_values['l'] = 1
-               else:
-                  l_values['l'] += 1
+  #           elif interaction.data['custom_id'] == "4":
+  #              if l_values['l'] == 4:
+  #                 l_values['l'] = 1
+  #              else:
+  #                 l_values['l'] += 1
 
-            elif interaction.data['custom_id'] == "6":
-              print(l1[l_values['l1']], l1[l_values['l2']], l1[l_values['l3']], l1[l_values['l4']])
-              if l1[l_values['l1']] == "5" and l1[l_values['l2']] == "1" and l1[l_values['l3']] == "3" and l1[l_values['l4']] == "2":
-                 await interaction.response.send_message("gooot!!!", ephemeral=True)
-                 return
-              else:
-                 await interaction.response.send_message("not!!!!", ephemeral=True)
-                 return
+  #           elif interaction.data['custom_id'] == "6":
+  #             print(l1[l_values['l1']], l1[l_values['l2']], l1[l_values['l3']], l1[l_values['l4']])
+  #             if l1[l_values['l1']] == "5" and l1[l_values['l2']] == "1" and l1[l_values['l3']] == "3" and l1[l_values['l4']] == "2":
+  #                await interaction.response.send_message("gooot!!!", ephemeral=True)
+  #                return
+  #             else:
+  #                await interaction.response.send_message("not!!!!", ephemeral=True)
+  #                return
                 
-            await interaction.response.edit_message(content=f"{l1[l_values['l1']]}\n{l1[l_values['l2']]}\n{l1[l_values['l3']]}\n{l1[l_values['l4']]}")
+  #           await interaction.response.edit_message(content=f"{l1[l_values['l1']]}\n{l1[l_values['l2']]}\n{l1[l_values['l3']]}\n{l1[l_values['l4']]}")
 
-    button1 = Button(label="1", style=discord.ButtonStyle.blurple, custom_id="1")
-    button2 = Button(label="2", style=discord.ButtonStyle.blurple, custom_id="2", row=2)
-    button3 = Button(label="3", style=discord.ButtonStyle.blurple, custom_id="3", row=2)
-    button4 = Button(label="4", style=discord.ButtonStyle.blurple, custom_id="4", row=2)
-    button5 = Button(label="5", style=discord.ButtonStyle.blurple, custom_id="5")
-    button6 = Button(label="6", style=discord.ButtonStyle.blurple, custom_id="6")
+  #   button1 = Button(label="1", style=discord.ButtonStyle.blurple, custom_id="1")
+  #   button2 = Button(label="2", style=discord.ButtonStyle.blurple, custom_id="2", row=2)
+  #   button3 = Button(label="3", style=discord.ButtonStyle.blurple, custom_id="3", row=2)
+  #   button4 = Button(label="4", style=discord.ButtonStyle.blurple, custom_id="4", row=2)
+  #   button5 = Button(label="5", style=discord.ButtonStyle.blurple, custom_id="5")
+  #   button6 = Button(label="6", style=discord.ButtonStyle.blurple, custom_id="6")
 
-    button1.callback = pop1
-    button2.callback = pop1
-    button3.callback = pop1
-    button4.callback = pop1
-    button5.callback = pop1
-    button6.callback = pop1
+  #   button1.callback = pop1
+  #   button2.callback = pop1
+  #   button3.callback = pop1
+  #   button4.callback = pop1
+  #   button5.callback = pop1
+  #   button6.callback = pop1
 
-    view = View(timeout=None)
-    view.add_item(button5)
-    view.add_item(button1)
-    view.add_item(button6)
-    view.add_item(button2)
-    view.add_item(button3)
-    view.add_item(button4)
+  #   view = View(timeout=None)
+  #   view.add_item(button5)
+  #   view.add_item(button1)
+  #   view.add_item(button6)
+  #   view.add_item(button2)
+  #   view.add_item(button3)
+  #   view.add_item(button4)
     
 
-    await interaction.response.send_message(f"{l1[l_values['l1']]}\n{l1[l_values['l2']]}\n{l1[l_values['l3']]}\n{l1[l_values['l4']]}", ephemeral=True, view=view)
+  #   await interaction.response.send_message(f"{l1[l_values['l1']]}\n{l1[l_values['l2']]}\n{l1[l_values['l3']]}\n{l1[l_values['l4']]}", ephemeral=True, view=view)
 
   # @app_commands.command(name="test", description="Задает вопрос")
   # async def ball(self, interaction: discord.Interaction, *, вопрос: str = None):
@@ -194,10 +192,7 @@ class moderator(commands.Cog):
          await interaction.response.send_message("""
 # Важная информация для всех пользователей!
 
-**Список игр, которые не прошли бета-тест**:
-
-- Мафия (больше 4 игроков) — оформление игры и код подлежат скорейшему изменению.
-- Ведьма (больше 2 игроков)
+Все игры, в которых есть возможность играть втроём и более, не прошли бета-тестирование на 3+ игроков. Поэтому, пожалуйста, в случае багов или неисправностей напишите моему создателю или перейдите на мой сервер поддержки.
 
 Спасибо за понимание! Причина такой ситуации — недостаток бета-тестеров.
 """, ephemeral=True)

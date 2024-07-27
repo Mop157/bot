@@ -3788,10 +3788,10 @@ class fun(commands.Cog):
                                     puzzle[channe_id]['home']['1ящик'] = False
                                     puzzle[channe_id]['players'][player_2]['item'].append("ключ")
                                     puzzle[channe_id]['players'][player_2]['item'].append("лист бумаги")
-                                    await interaction.response.send_message("gooot!!!", ephemeral=True)
+                                    await interaction.response.send_message("Открыв первый ящик, я обнаружил странный ключ и лист бумаги. Взяв всё с собой, я отошёл от ящика.", ephemeral=True)
                                     return
                                 else:
-                                    await interaction.response.send_message("gooot!!!", ephemeral=True)
+                                    await interaction.response.send_message("цифры оказались в неправильном порядке.", ephemeral=True)
                                     return
 
                             elif puzzle[channe_id]['kod']['kod'] == 4:
@@ -3802,10 +3802,10 @@ class fun(commands.Cog):
                                     box2[puzzle[channe_id]['kod']['2ящик5']] == "8" and \
                                     box2[puzzle[channe_id]['kod']['2ящик6']] == "9":
                                     puzzle[channe_id]['home']['2ящик'] = False
-                                    await interaction.response.send_message("X", ephemeral=True)
+                                    await interaction.response.send_message("Открыв другой ящик, я заметил странный символ на дне, похожий на **Х**. Что это может значить?", ephemeral=True)
                                     return                 
                                 else:
-                                    await interaction.response.send_message("gooot!!!", ephemeral=True)
+                                    await interaction.response.send_message("цифры оказались в неправильном порядке.", ephemeral=True)
                                     return
 
                             elif puzzle[channe_id]['kod']['kod'] == 5:
@@ -3897,7 +3897,7 @@ class fun(commands.Cog):
 )--{games3}--(
 """, view=view_player2)
                         else:                      
-                            await interaction.response.edit_message(content=f"1", view=view_player2)                       
+                            await interaction.response.edit_message(content=f"Осмотрев открытый ящик, я ничего нового не заметил.", view=view_player2)                       
 
                     elif interaction.data['custom_id'] == "ящик2":
                         view_player2.clear_items()
@@ -3916,7 +3916,7 @@ class fun(commands.Cog):
 )--{games4}--(
 """, view=view_player2)
                         else:                      
-                            await interaction.response.edit_message(content=f"1", view=view_player2)
+                            await interaction.response.edit_message(content=f"Осматривая открытый ящик, я ничего нового не обнаружил: тот же символ **Х** и больше ничего.", view=view_player2)
 
                     elif interaction.data['custom_id'] == "ящик3":
                         view_player2.clear_items()
@@ -3936,6 +3936,16 @@ class fun(commands.Cog):
 """, view=view_player2)
                         else:                      
                             await interaction.response.edit_message(content=f"1", view=view_player2)
+
+                    elif interaction.data['custom_id'] == "страница ?":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        await interaction.response.edit_message(content=f"1", view=view_player2)
+
+                    elif interaction.data['custom_id'] == "лист бумаги":
+                        view_player2.clear_items()
+                        view_player2.add_item(button_N)
+                        await interaction.response.edit_message(content=f"1", view=view_player2)
 
                     elif interaction.data['custom_id'] == "тgdgd":
                         puzzle[channe_id]['home']['буфет'] = False
@@ -3994,6 +4004,10 @@ class fun(commands.Cog):
                                 
                             view_player2.clear_items()
                             view_player2.add_item(button_N)
+                            if "страница ?" in puzzle[channe_id]['players'][player_2]['item']:
+                                view_player2.add_item(button11)
+                            elif "лист бумаги" in puzzle[channe_id]['players'][player_2]['item']:
+                                view_player2.add_item(button12)
                             await interaction.response.edit_message(content=f"Ваши предметы:\n\n{item}.", view=view_player2)
 
                         elif interaction.data['custom_id'] == "N":
@@ -4067,7 +4081,7 @@ class fun(commands.Cog):
                         elif interaction.data['values'][0] == "Телефон":
                             view_player2.clear_items()
                             view_player2.add_item(button_N)
-                            await interaction.response.edit_message(content=f"2", view=view_player2)
+                            await interaction.response.edit_message(content=f"Подойдя к телефону, я решил поинтересоваться у друга о его успехах с расшифровкой символов. *Ну как успехи?* — спросил я. В ответ услышал: *Да нормально, всё ищу.*", view=view_player2)
 
                         elif interaction.data['values'][0] == "буфет11":
                             view_player2.clear_items()
@@ -4095,7 +4109,7 @@ class fun(commands.Cog):
                             view_player2.add_item(button9)
                             view_player2.add_item(button10)
                             view_player2.add_item(button_N)
-                            await interaction.response.edit_message(content=f"1", view=view_player2)
+                            await interaction.response.edit_message(content=f"Подойдя к ящикам, я заметил, что они все находятся под кодовым замком. Вопрос в том, с какого начать?", view=view_player2)
 
                 ##### кнопки меню
                 button_R = Button(emoji="➡️", style=discord.ButtonStyle.blurple, custom_id="R")
@@ -4114,6 +4128,8 @@ class fun(commands.Cog):
                 button8 = Button(emoji="1️⃣", style=discord.ButtonStyle.blurple, custom_id="ящик1")
                 button9 = Button(emoji="2️⃣", style=discord.ButtonStyle.blurple, custom_id="ящик2")
                 button10 = Button(emoji="3️⃣", style=discord.ButtonStyle.blurple, custom_id="ящик3")
+                button11 = Button(label="страница ?", style=discord.ButtonStyle.green, custom_id="страница ?")
+                button12 = Button(label="лист бумаги", style=discord.ButtonStyle.green, custom_id="лист бумаги")
                 # button = Button(emoji="", style= , custom_id="")
 
                 ##### кнопки кода
@@ -4123,7 +4139,6 @@ class fun(commands.Cog):
                 button_caskets4 = Button(emoji="➡️", style=discord.ButtonStyle.blurple, custom_id="caskets4", row=2)
                 button_caskets5 = Button(emoji="☑️", style=discord.ButtonStyle.green, custom_id="caskets5")
                 
-
                 ##### каталоги
                 options1 = [
                     discord.SelectOption(label="Картина"),
@@ -4140,7 +4155,7 @@ class fun(commands.Cog):
                     discord.SelectOption(label="Картина"),
                     discord.SelectOption(label="старые часи"),
                     discord.SelectOption(label="ящики")
-                    ] # 2/3
+                    ] # 3/3
 
                 select1 = discord.ui.Select(
                         placeholder="выберите предмет",
@@ -4179,6 +4194,8 @@ class fun(commands.Cog):
                 button8.callback = Puzzle2
                 button9.callback = Puzzle2
                 button10.callback = Puzzle2
+                button11.callback = Puzzle2
+                button12.callback = Puzzle2
 
                 button_caskets1.callback = Puzzle2
                 button_caskets2.callback = Puzzle2
